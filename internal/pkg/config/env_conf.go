@@ -18,7 +18,7 @@ type EnvCfg struct {
 	AndroidSdkEnv           string `mapstructure:"android_sdk_env"`
 	AndroidBuildToolPath    string `mapstructure:"android_build_tool_path"`
 	AndroidBuildToolVersion string `mapstructure:"android_build_tool_version"`
-	ApkToolName             string `mapstructure:"apk_tool_name"`
+	ApkToolName             string `mapstructure:"apktool_name"`
 	ToolDir                 string `mapstructure:"tool_dir"`
 }
 

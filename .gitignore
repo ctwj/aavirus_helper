@@ -4,3 +4,4 @@ frontend/dist
 output/*
 tmp/*
 workspace/*
+.DS_Store

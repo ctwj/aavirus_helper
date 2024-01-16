@@ -1,21 +1,5 @@
 name: title
 run_mode: release
-database:
-    default:
-        charset: utf8
-        conn_max_life_time: 3
-        conn_retries: 10
-        conn_retry_backoff: 3
-        enable: false
-        iterate_buffer_size: 50
-        log_sql: false
-        master: mysql:3306
-        max_idle_conns: 2
-        max_open_conns: 100
-        slaves:
-            - mysql:3306
-        table_opts: ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
-        type: mysql
 log:
     compress: true
     file_path: ./app.log
@@ -32,6 +16,22 @@ env:
     android_sdk_env: ANDROID_HOME
     android_build_tool_version: 
     android_build_tool_path:
+database:
+    default:
+        charset: utf8
+        conn_max_life_time: 3
+        conn_retries: 10
+        conn_retry_backoff: 3
+        enable: false
+        iterate_buffer_size: 50
+        log_sql: false
+        master: mysql:3306
+        max_idle_conns: 2
+        max_open_conns: 100
+        slaves:
+            - mysql:3306
+        table_opts: ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8
+        type: mysql
     
     
       

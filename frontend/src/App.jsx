@@ -2,6 +2,7 @@ import {useState} from 'react';
 import logo from './assets/images/logo-universal.png';
 import './App.css';
 import {Greet} from "../wailsjs/go/main/App";
+import {Create} from "../wailsjs/go/task/Task";
 
 function App() {
     const [resultText, setResultText] = useState("Please enter your name below 👇");
@@ -11,6 +12,7 @@ function App() {
 
     function greet() {
         Greet(name).then(updateResultText);
+        Create();
     }
 
     return (
