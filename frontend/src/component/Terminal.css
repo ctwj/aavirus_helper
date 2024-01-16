@@ -1,0 +1,7 @@
+.react-terminal-wrapper {
+    height: 100%;
+    padding: 48px 12px 12px 12px;
+}
+.react-terminal {
+    height: 100% !important;
+}

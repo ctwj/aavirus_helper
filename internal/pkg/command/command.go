@@ -23,9 +23,15 @@ func NewCommand() *Command {
 	}
 }
 
-func (c *Command) Run(cmds []string) error {
+func (c *Command) Run(cmds []string) ([]string, error) {
+	var output []string
+
 	for i, cmdStr := range cmds {
-		println(i)
+		if len(cmds) > 1 {
+			lib.SendCommand2Front(fmt.Sprintf("#  ==== Step: %v ====", i+1))
+		}
+
+		lib.SendCommand2Front(cmdStr)
 
 		// 输出内容
 		var cmd *exec.Cmd
@@ -38,12 +44,14 @@ func (c *Command) Run(cmds []string) error {
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
 			log.Println("Error creating StdoutPipe for Cmd", err)
-			return err
+			lib.SendOutput2Front("Error creating StdoutPipe for Cmd" + err.Error())
+			return output, err
 		}
 
 		if err := cmd.Start(); err != nil {
 			log.Println("Error starting Cmd", err)
-			return err
+			lib.SendOutput2Front("Error starting Cmd:" + err.Error())
+			return output, err
 		}
 
 		scanner := bufio.NewScanner(stdout)
@@ -52,18 +60,28 @@ func (c *Command) Run(cmds []string) error {
 			message := scanner.Text()
 
 			log.Println(message)
+			lib.SendOutput2Front(message)
+			output = append(output, message)
 			// 输出
 		}
 
 		if err := cmd.Wait(); err != nil {
 			log.Println("Command failed:", err)
-			return err
+			lib.SendOutput2Front("Command failed:" + err.Error())
+			return output, err
 		}
 	}
 
 	// finish
 
-	return nil
+	return output, nil
+}
+
+func (c *Command) ApkInfoCommand(apkPath string) string {
+	java := c.Tool.Java
+	apkInfo := c.Tool.ApkInfo
+	cmd := fmt.Sprintf("%s -jar %s %s", java, apkInfo, apkPath)
+	return cmd
 }
 
 func (c *Command) DisassemblyCommand(apkPath string) string {
@@ -97,4 +115,14 @@ func (c *Command) DoDisassembly(apkPath string) error {
 	c.Run([]string{cmd})
 	fmt.Println(cmd)
 	return nil
+}
+
+func (c *Command) GetApkInfo(apkPath string) ([]string, error) {
+	cmd := c.ApkInfoCommand(apkPath)
+	result, err := c.Run([]string{cmd})
+	if err != nil {
+		return []string{}, err
+	}
+	fmt.Println(cmd)
+	return result, nil
 }

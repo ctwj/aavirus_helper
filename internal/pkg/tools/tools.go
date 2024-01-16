@@ -13,6 +13,7 @@ type Tools struct {
 	ApkSigner string
 	JarSigner string
 	Zipalign  string
+	ApkInfo   string
 }
 
 func NewTools() *Tools {
@@ -26,5 +27,6 @@ func NewTools() *Tools {
 		ApkSigner: path.Join(env.AndroidBuildToolPath, "apksigner"),
 		JarSigner: "jarsigner",
 		Zipalign:  path.Join(env.AndroidBuildToolPath, "zipalign"),
+		ApkInfo:   path.Join(config.AppDir, env.ToolDir, "GetMoreAPKInfo.jar"),
 	}
 }

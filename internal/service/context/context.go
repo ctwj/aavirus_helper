@@ -9,13 +9,13 @@ import (
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
-var global *Context
+var global *context.Context
 
-func Set(ctx *Context) {
+func Set(ctx *context.Context) {
 	global = ctx
 }
 
-func Get() *Context {
+func Get() *context.Context {
 	return global
 }
 

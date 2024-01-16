@@ -7,6 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"time"
+
+	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
+	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
 // ==================================================
@@ -137,4 +140,18 @@ func fileSize(file fs.DirEntry) (int64, error) {
 		return 0, err
 	}
 	return info.Size(), nil
+}
+
+// ==================================================
+// 发送命令到前端
+func SendCommand2Front(cmd string) {
+	ctx := ctlCtx.Get()
+	runtime.EventsEmit(*ctx, "command", cmd)
+}
+
+// ==================================================
+// 发送结果到前端
+func SendOutput2Front(cmd string) {
+	ctx := ctlCtx.Get()
+	runtime.EventsEmit(*ctx, "message", cmd)
 }

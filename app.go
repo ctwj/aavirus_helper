@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ctwj/aavirus_helper/internal/pkg/config"
+	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
 )
 
 // App struct
@@ -26,8 +27,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func Init(ctx context.Context) {
-
-	// config.Setup("conf/config.yaml")
+	ctlCtx.Set(&ctx)
 	config.Load(ctx, "conf/config.yaml", config.LoadSqlDBConfig)
 }
 
