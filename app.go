@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"github.com/ctwj/aavirus_helper/internal/pkg/config"
 )
 
 // App struct
@@ -19,6 +21,14 @@ func NewApp() *App {
 // so we can call the runtime methods
 func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
+
+	Init(ctx)
+}
+
+func Init(ctx context.Context) {
+
+	// config.Setup("conf/config.yaml")
+	config.Load(ctx, "conf/config.yaml", config.LoadSqlDBConfig)
 }
 
 // Greet returns a greeting for the given name
