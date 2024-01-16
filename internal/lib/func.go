@@ -32,3 +32,20 @@ func FindAndroidSDK() (string, error) {
 	// 如果两者都未设置，则返回错误
 	return "", fmt.Errorf("Android SDK not found. Set either ANDROID_HOME or ANDROID_SDK_ROOT environment variable.")
 }
+
+func CreateDirectoryIfNotExists(dirPath string) error {
+	// 检查目录是否存在
+	_, err := os.Stat(dirPath)
+	if os.IsNotExist(err) {
+		// 目录不存在，创建目录
+		err := os.Mkdir(dirPath, 0755)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Created directory: %s\n", dirPath)
+	} else if err != nil {
+		return err
+	}
+
+	return nil
+}

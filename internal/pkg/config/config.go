@@ -4,8 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path"
 	"sync"
 
+	"github.com/ctwj/aavirus_helper/internal/lib"
 	"github.com/fsnotify/fsnotify"
 	"github.com/labstack/gommon/log"
 	"github.com/spf13/viper"
@@ -72,6 +74,7 @@ func (c *configLoader) load(ctx context.Context) error {
 	}
 
 	AppDir = dir
+	initDir()
 
 	for _, loader := range c.loaders {
 		if err := loader(ctx, dir); err != nil {
@@ -80,6 +83,24 @@ func (c *configLoader) load(ctx context.Context) error {
 	}
 
 	return nil
+}
+
+func initDir() {
+	TmpDir = path.Join(AppDir, "tmp")
+	WorkDir = path.Join(AppDir, "workspace")
+	OutputDir = path.Join(AppDir, "output")
+	err := lib.CreateDirectoryIfNotExists(TmpDir)
+	if err != nil {
+		fmt.Println(ERROR_TAG, "Error creating conf directory:", err)
+	}
+	lib.CreateDirectoryIfNotExists(WorkDir)
+	if err != nil {
+		fmt.Println(ERROR_TAG, "Error creating work directory:", err)
+	}
+	lib.CreateDirectoryIfNotExists(OutputDir)
+	if err != nil {
+		fmt.Println(ERROR_TAG, "Error creating output directory:", err)
+	}
 }
 
 func (c *configLoader) watch(ctx context.Context) {

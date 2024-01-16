@@ -1,19 +1,26 @@
-# README
+# 辅助工具
 
-## About
+## 目录
 
-This is the official Wails React template.
+conf        // 配置目录
+tmp         // 临时目录
+workspsace  // 工作目录
+output      // 结果输出目录
+tools       // 工具目录
 
-You can configure the project by editing `wails.json`. More information about the project settings can be found
-here: https://wails.io/docs/reference/project-config
+# 初始说明
 
-## Live Development
+UI 和 逻辑分离
 
-To run in live development mode, run `wails dev` in the project directory. This will run a Vite development
-server that will provide very fast hot reload of your frontend changes. If you want to develop in a browser
-and have access to your Go methods, there is also a dev server that runs on http://localhost:34115. Connect
-to this in your browser, and you can call your Go code from devtools.
+UI 需要单独安装依赖
+```
+cd frontend
+pnpm install
+```
 
-## Building
+# scripts
 
-To build a redistributable, production mode package, use `wails build`.
+运行调试
+```
+wails dev -s
+```
