@@ -15,9 +15,7 @@ import {Create} from "../wailsjs/go/task/Task";
 
 const App = () => {
     const { Header, Footer, Sider, Content } = Layout;
-
     const { appStore } = useStore()
-    console.log(appStore)
 
     // 处理go传递过来的消息
     useEffect(() => {

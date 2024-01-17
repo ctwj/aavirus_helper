@@ -2,8 +2,9 @@ import { observer } from "../hooks/storeHook";
 import React, { useState } from "react";
 import { Spin, Divider, Button, Typography } from '@douyinfe/semi-ui';
 import TerminalUI from './Terminal';
+import FileList from "./FileList";
 
-import { Disassemble } from '../../wailsjs/go/project/Project'
+import { Disassemble, FileList as GetFileList } from '../../wailsjs/go/project/Project'
 
 import { useStore } from "../hooks/storeHook";
 
@@ -15,16 +16,21 @@ const ToolBar = () => {
     // 设置正在汇编的状态
     const [disassembling, setDisassembling] = useState()
     
-
+    // 反编译 apk, 加载反编译结果的文件列表
     const  handleDisassemble = () => {
-        setDisassembling(true)
-        Disassemble(appStore.path).then(() => {
+        setDisassembling(true)  // 开启编译中状态
+        Disassemble(appStore.path).then((result) => { // 反编译完成后， 设置状态
             setDisassembling(false)
-        })
+            appStore.setDisassembled(true)
+            appStore.setDisassembleDir(result.outdir)
+            return result.outdir
+        }).then(GetFileList).then(result => {// 获取反编译后的文件列表
+            appStore.setDisassembleFileList(result)
+        }) 
     }
 
     return (
-        <React.Fragment>
+        <div style={{height: '36px', padding: "8px 16px"}}>
             {!disassembled &&  
             <Button style={{ padding: '6px 24px',alignSelf: 'flex-start'  }} theme="solid" type="primary"
                 onClick={handleDisassemble}
@@ -34,7 +40,7 @@ const ToolBar = () => {
             }
             {disassembling && <Spin />}
             {disassembled && <div></div>}
-        </React.Fragment>
+        </div>
     )
 }
 
@@ -47,10 +53,11 @@ const Controller = () => {
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <ToolBar style={{alignSelf: 'flex-start'}} />
-            <Divider margin='12px'/>
+            <ToolBar />
+            {/* <Divider margin='12px'/> */}
             <div style={{ display: 'flex', flexDirection: 'column', flexShrink: '1', flexGrow: '1', overflow: 'auto' }}>
-            <TerminalUI />
+            { !disassembled && <TerminalUI />}
+            { disassembled && <FileList />}
                 {/* {
                     apkInfo.map((item, index) => {
                         return <Text key={index} style={{ whiteSpace: 'pre-wrap'}}>{item}</Text>

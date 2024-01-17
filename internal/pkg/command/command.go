@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"os"
 	"os/exec"
 	"path"
 	"runtime"
@@ -84,13 +85,22 @@ func (c *Command) ApkInfoCommand(apkPath string) string {
 	return cmd
 }
 
-func (c *Command) DisassemblyCommand(apkPath string) string {
+func (c *Command) DisassemblyCommand(apkPath string) (string, string) {
 	java := c.Tool.Java
 	apkTool := c.Tool.ApkTool
 	fileName, _ := lib.GetFileNameWithoutExtension(apkPath)
 	outputDir := path.Join(config.WorkDir, fileName)
+
+	// 对输出文件夹 outputDir 进行检测，如果存在先清除
+	if _, err := os.Stat(outputDir); err == nil {
+		if err := os.RemoveAll(outputDir); err != nil {
+			log.Printf("failed to remove existing output directory: %v", err)
+			return outputDir, ""
+		}
+	}
+
 	cmd := fmt.Sprintf("%s -jar %s d %s -o %s", java, apkTool, apkPath, outputDir)
-	return cmd
+	return outputDir, cmd
 }
 
 // java -jar ~/tools/apktool.jar b app-debug -o new-app-debug.apk
@@ -110,11 +120,11 @@ jarsigner -verify -verbose -certs result.apk
 ~/Android/Sdk/build-tools/34.0.0/zipalign -v 4 new-app-debug.apk aligned.apk
 **/
 
-func (c *Command) DoDisassembly(apkPath string) error {
-	cmd := c.DisassemblyCommand(apkPath)
+func (c *Command) DoDisassembly(apkPath string) (string, error) {
+	outdir, cmd := c.DisassemblyCommand(apkPath)
 	c.Run([]string{cmd})
 	fmt.Println(cmd)
-	return nil
+	return outdir, nil
 }
 
 func (c *Command) GetApkInfo(apkPath string) ([]string, error) {

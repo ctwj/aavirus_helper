@@ -3,7 +3,7 @@
 
 export function Disassemble(arg1:string):Promise<any>;
 
-export function FileList(arg1:string,arg2:string):Promise<any>;
+export function FileList(arg1:string):Promise<any>;
 
 export function GetApkInfo(arg1:string):Promise<any>;
 

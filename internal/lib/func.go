@@ -2,11 +2,11 @@ package lib
 
 import (
 	"fmt"
-	"io/fs"
+	"math"
 	"math/rand"
 	"os"
 	"path/filepath"
-	"time"
+	"strconv"
 
 	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -72,74 +72,92 @@ func GetFileNameWithoutExtension(filePath string) (string, error) {
 }
 
 // ==================================================
-// FileList 获取树状结构的文件列表
+// FileInfo 获取文件或目录信息
 type FileInfo struct {
-	Name         string
-	Size         int64
-	IsDir        bool
-	ModTime      time.Time
-	TotalSize    int64
-	TotalFileNum int
+	Label        string     `json:"label"`
+	Value        string     `json:"value"`
+	Key          string     `json:"key"`
+	Name         string     `json:"name"`
+	Size         int64      `json:"size"`
+	IsDir        bool       `json:"isDir"`
+	Path         string     `json:"path"`
+	TotalSize    int64      `json:"totalSize,omitempty"`
+	TotalFileNum int        `json:"totalFileNum,omitempty"`
+	HumanSize    string     `json:"humanSize,omitempty"`
+	Children     []FileInfo `json:"children,omitempty"`
 }
 
-// FileList gets the tree-like structure of file list
-func FileList(apkPath string, dir string) ([]FileInfo, error) {
-	var fileList []FileInfo
-	err := listFiles(apkPath, dir, &fileList)
-	if err != nil {
-		return nil, err
-	}
-	return fileList, nil
-}
-
-// listFiles recursively traverses the directory
-func listFiles(apkPath string, dir string, fileList *[]FileInfo) error {
-	files, err := os.ReadDir(dir)
-	if err != nil {
-		return err
-	}
-
+func FileList(dir string) (FileInfo, error) {
 	var dirInfo FileInfo
+	info, err := os.Stat(dir)
+	if err != nil {
+		return dirInfo, err
+	}
+	if !info.IsDir() { // 该函数值遍历文件夹
+		return dirInfo, nil //
+	}
 	dirInfo.Name = filepath.Base(dir)
 	dirInfo.IsDir = true
-	dirInfo.ModTime = time.Now()
+	dirInfo.Path = dir
+	dirInfo.Size = 0
+	dirInfo.TotalSize = 0
+	dirInfo.TotalFileNum = 0
+	dirInfo.Label = dirInfo.Name
+	dirInfo.Value = dirInfo.Path
+	dirInfo.Key = dirInfo.Path
 
-	for _, file := range files {
-		fileInfo := FileInfo{
-			Name:  file.Name(),
-			IsDir: file.IsDir(),
-		}
-
-		if file.IsDir() {
-			// Recursively process subdirectories
-			subDir := filepath.Join(dir, file.Name())
-			err := listFiles(apkPath, subDir, fileList)
-			if err != nil {
-				return err
-			}
-		} else {
-			fileInfo.Size, err = fileSize(file)
-			if err != nil {
-				return err
-			}
-		}
-
-		dirInfo.TotalSize += fileInfo.Size
-		dirInfo.TotalFileNum++
-
-		*fileList = append(*fileList, fileInfo)
+	files, err := os.ReadDir(dir)
+	if err != nil {
+		return dirInfo, err
 	}
+	var children []FileInfo
+	for _, file := range files {
 
-	*fileList = append(*fileList, dirInfo)
-	return nil
+		filePath := filepath.Join(dir, file.Name())
+		var item FileInfo
+		if file.IsDir() {
+			item, _ = FileList(filePath)
+		} else {
+			item.Path = filePath
+			info, _ := os.Stat(filepath.Join(dir, file.Name()))
+			item.Name = file.Name()
+			item.Size = info.Size()
+			item.Label = item.Name
+			item.Value = item.Path
+			item.Key = item.Path
+			item.IsDir = false
+		}
+		children = append(children, item)
+	}
+	dirInfo.Children = children
+	return dirInfo, nil
 }
 
-func fileSize(file fs.DirEntry) (int64, error) {
-	info, err := file.Info()
-	if err != nil {
-		return 0, err
+// 计算 FileList 中文件个数 和 目录大小
+func CalculateDirSize(root *FileInfo) (int64, int) {
+	var totalSize int64
+	var totalFileNum int
+	var size int64
+	size = root.Size
+	if root.IsDir {
+
+		// 计算子目录的大小
+		for i := range root.Children {
+			if root.Children[i].IsDir {
+				dirTotalSize, dirTotalFileNum := CalculateDirSize(&root.Children[i])
+				totalSize = totalSize + dirTotalSize
+				totalFileNum = totalFileNum + dirTotalFileNum
+			} else {
+				totalSize = totalSize + root.Children[i].Size
+				totalFileNum = totalFileNum + 1
+			}
+		}
+		size = totalSize
 	}
-	return info.Size(), nil
+	root.TotalSize = totalSize
+	root.TotalFileNum = totalFileNum
+	root.HumanSize = HumanFileSize(float64(size))
+	return totalSize, totalFileNum
 }
 
 // ==================================================
@@ -154,4 +172,37 @@ func SendCommand2Front(cmd string) {
 func SendOutput2Front(cmd string) {
 	ctx := ctlCtx.Get()
 	runtime.EventsEmit(*ctx, "message", cmd)
+}
+
+// ==================================================
+// 格式化文件大小
+var (
+	suffixes [5]string
+)
+
+func Round(val float64, roundOn float64, places int) (newVal float64) {
+	var round float64
+	pow := math.Pow(10, float64(places))
+	digit := pow * val
+	_, div := math.Modf(digit)
+	if div >= roundOn {
+		round = math.Ceil(digit)
+	} else {
+		round = math.Floor(digit)
+	}
+	newVal = round / pow
+	return
+}
+
+func HumanFileSize(size float64) string {
+	suffixes[0] = "B"
+	suffixes[1] = "KB"
+	suffixes[2] = "MB"
+	suffixes[3] = "GB"
+	suffixes[4] = "TB"
+
+	base := math.Log(size) / math.Log(1024)
+	getSize := Round(math.Pow(1024, base-math.Floor(base)), .5, 2)
+	getSuffix := suffixes[int(math.Floor(base))]
+	return strconv.FormatFloat(getSize, 'f', -1, 64) + " " + string(getSuffix)
 }

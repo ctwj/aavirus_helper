@@ -6,8 +6,8 @@ export function Disassemble(arg1) {
   return window['go']['project']['Project']['Disassemble'](arg1);
 }
 
-export function FileList(arg1, arg2) {
-  return window['go']['project']['Project']['FileList'](arg1, arg2);
+export function FileList(arg1) {
+  return window['go']['project']['Project']['FileList'](arg1);
 }
 
 export function GetApkInfo(arg1) {
