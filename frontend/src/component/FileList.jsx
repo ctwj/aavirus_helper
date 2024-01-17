@@ -2,7 +2,7 @@ import React from "react";
 import { observer } from "../hooks/storeHook";
 import { useStore } from "../hooks/storeHook";
 
-import { Tree, Toast } from '@douyinfe/semi-ui'
+import { Typography, ButtonGroup, Button, Tree, Toast } from '@douyinfe/semi-ui'
 
 
 // type FileInfo struct {
@@ -19,6 +19,37 @@ import { Tree, Toast } from '@douyinfe/semi-ui'
 // 	Children     []FileInfo `json:"children,omitempty"`
 // }
 
+
+const nodeStyle= {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+};
+const TreeItemNode = (props) => {
+    const node = props.node
+    const { name, humanSize } = node;
+    const { Text } = Typography
+
+    return <div style={nodeStyle}>
+        <span>{name}</span>
+        <div style={{ display: 'flex', alignItems: 'center'}}>
+            <Text>{humanSize}</Text>
+            <ButtonGroup
+                size="small"
+                theme="borderless"
+                >
+                <Button
+                    onClick={e => {
+                        Toast.info(opts);
+                        e.stopPropagation();
+                    }}
+                >提示</Button>
+                <Button>点击</Button>
+            </ButtonGroup>
+        </div>
+    </div>
+}
+
 /**
  * FileList
  * @param {*} props 
@@ -33,39 +64,33 @@ const FileList = (props) => {
     }
 
 
-    const nodeStyle= {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-    };
+    const treeSelectChange = e => {
+        console.log('当前所有选中项: ', e)
+        appStore.setSelFiles(e)
+    } 
+    
     const handleRenderData = (list) => {
-        list.array.forEach(element => {
+        if (!list.length) {
+            return list;
+        }
+        list.map(element => {
             if (element.children) {
-                handleRenderData(element)
+                element.children = handleRenderData(element.children)
             }
 
+            const label = element.label
             if (element.isDir) { // 如果是 dir
-                const label = element.label
-                element.label = <ButtonGroup
-                        size="small"
-                        theme="borderless"
-                    >
-                    <Button
-                        onClick={e => {
-                            Toast.info(opts);
-                            e.stopPropagation();
-                        }}
-                    >提示</Button>
-                    <Button>点击</Button>
-                </ButtonGroup>
+                element.label = <TreeItemNode node={element} />
             } else { // 如果是文件
-
+                element.label = <div>{label}</div>
             }
+            return element;
         });
+        return list;
     }
 
     // 自定义渲染Tree节点
-    const renderData = handleRenderData(fileListTreeData)
+    const renderData = handleRenderData(JSON.parse(JSON.stringify(fileListTreeData)))
 
     const style = {
         width: '100%',
@@ -78,7 +103,10 @@ const FileList = (props) => {
             treeData={renderData}
             directory
             showLine
+            multiple
+            checkRelation='unRelated'
             style={style}
+            onChange={treeSelectChange}
         />
         </div>
     )

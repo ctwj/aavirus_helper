@@ -1,6 +1,8 @@
 package project
 
 import (
+	"path"
+
 	"github.com/ctwj/aavirus_helper/internal/lib"
 	"github.com/ctwj/aavirus_helper/internal/pkg/command"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -73,4 +75,23 @@ func (p *Project) Disassemble(apkPath string) interface{} {
 		"outdir": outdir,
 		"err":    nil,
 	}
+}
+
+// 批量打包 删除文件后进行打包， 需要排除掉 根目录，排除掉 apktool.yml
+func (p *Project) BatchPack(apkdir string, list []string) interface{} {
+	var result []string
+	apkTool := path.Join(apkdir, "apktool.yml")
+
+	for _, item := range list {
+		if item != apkdir && item != apkTool {
+			result = append(result, item)
+		}
+	}
+
+	for _, removePath := range result {
+		// 打包
+		command.NewCommand().DoPackAfterRemoveItem(apkdir, removePath)
+	}
+
+	return ""
 }

@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"path"
 	"runtime"
+	"strings"
 
 	"github.com/ctwj/aavirus_helper/internal/lib"
 	"github.com/ctwj/aavirus_helper/internal/pkg/config"
@@ -27,12 +28,8 @@ func NewCommand() *Command {
 func (c *Command) Run(cmds []string) ([]string, error) {
 	var output []string
 
-	for i, cmdStr := range cmds {
-		if len(cmds) > 1 {
-			lib.SendCommand2Front(fmt.Sprintf("#  ==== Step: %v ====", i+1))
-		}
-
-		lib.SendCommand2Front(cmdStr)
+	for _, cmdStr := range cmds {
+		lib.SendCommand2Front(fmt.Sprintf("#CMD: %v", cmdStr))
 
 		// 输出内容
 		var cmd *exec.Cmd
@@ -76,6 +73,67 @@ func (c *Command) Run(cmds []string) ([]string, error) {
 	// finish
 
 	return output, nil
+}
+
+func (c *Command) CopyCommand(source, dest string) string {
+	var cmd string
+	if runtime.GOOS != "windows" {
+		cmd = fmt.Sprintf("cp -r %s %s", source, dest)
+	} else {
+		cmd = fmt.Sprintf("xcopy %s %s /E", source, dest)
+	}
+	return cmd
+}
+
+func (c *Command) RemovePathCommand(path string) string {
+	var cmd string
+	if runtime.GOOS != "windows" {
+		cmd = fmt.Sprintf("rm -rf %s", path)
+	} else {
+		cmd = fmt.Sprintf("rd /s /q %s", path)
+	}
+	return cmd
+}
+
+func (c *Command) PackCommand(codePath, destFile string) string {
+	var cmd string
+	java := c.Tool.Java
+	apkTool := c.Tool.ApkTool
+
+	fmt.Sprintf("%s -jar %sb app-debug -o %s", java, apkTool, destFile)
+
+	return cmd
+}
+
+func (c *Command) CertGenerateCommand(randomPass, randomDName, jksPath string) string {
+	var cmd string
+	keytool := c.Tool.KeyTool
+
+	fmt.Sprintf("%s -genkey -v -keystore  %s -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass %s -keypass %s -dname \"%s\" -noprompt",
+		keytool, jksPath, randomPass, randomPass, randomDName,
+	)
+	return cmd
+}
+
+func (c *Command) ApksignerCommand(apkPath, destPath, jksPath, randomPass string) string {
+	var cmd string
+	apksigner := c.Tool.ApkSigner
+
+	fmt.Sprintf("%s sign --ks %s --ks-key-alias my-alias --ks-pass \"pass:%s\" --key-pass \"%s\" --in %s --out %s",
+		apksigner, jksPath, randomPass, randomPass, apkPath, destPath,
+	)
+
+	return cmd
+}
+
+func (c *Command) ZipalignCommand(sourceApk, destApk string) string {
+	var cmd string
+	zipalign := c.Tool.Zipalign
+
+	fmt.Sprintf("%s -v 4 %s %s",
+		zipalign, sourceApk, destApk)
+
+	return cmd
 }
 
 func (c *Command) ApkInfoCommand(apkPath string) string {
@@ -135,4 +193,46 @@ func (c *Command) GetApkInfo(apkPath string) ([]string, error) {
 	}
 	fmt.Println(cmd)
 	return result, nil
+}
+
+// 删除 removeItem 后重新打包
+func (c *Command) DoPackAfterRemoveItem(codePath string, removeItem string) (string, error) {
+
+	// 第一步， 复制代码到 tmp 目录
+	tmp := lib.GenerateRandomString(8)
+	targetCodeDir := path.Join(config.TmpDir, tmp)
+
+	// 第二步， 移除目录
+	removeDir := strings.Replace(removeItem, codePath, targetCodeDir, -1)
+	c.Run([]string{
+		c.CopyCommand(codePath, targetCodeDir),
+		c.RemovePathCommand(removeDir),
+	})
+
+	// 第三步， 随机包名
+	randomPackName := lib.GenerateRandomPackName()
+	lib.ChangePackName(targetCodeDir, randomPackName)
+
+	// 第四部， 打包, 签名
+	relativePath := strings.Replace(removeItem, codePath, "", -1)
+	desFileName := lib.GenerateTargetFileName(relativePath, removeItem)
+	destFile_1 := path.Join(config.TmpDir, desFileName+"_1.apk")
+
+	// 签名相关
+	randomPass := lib.GenerateRandomString(16)
+	jksPath := path.Join(config.TmpDir, randomPass+".jks")
+	randomDName := lib.GenerateRandomDName()
+
+	// 打包签名后的文件
+	destFile_2 := path.Join(config.TmpDir, desFileName+"_2.apk")
+	destFile_3 := path.Join(config.OutputDir, desFileName+".apk")
+
+	c.Run([]string{
+		c.PackCommand(codePath, destFile_1),
+		c.CertGenerateCommand(randomPass, randomDName, jksPath),
+		c.ApksignerCommand(destFile_1, destFile_2, jksPath, randomPass),
+		c.ZipalignCommand(destFile_2, destFile_3),
+	})
+
+	return destFile_3, nil
 }

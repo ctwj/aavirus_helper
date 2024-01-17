@@ -4,14 +4,14 @@ import { Spin, Divider, Button, Typography } from '@douyinfe/semi-ui';
 import TerminalUI from './Terminal';
 import FileList from "./FileList";
 
-import { Disassemble, FileList as GetFileList } from '../../wailsjs/go/project/Project'
+import { Disassemble, FileList as GetFileList, BatchPack } from '../../wailsjs/go/project/Project'
 
 import { useStore } from "../hooks/storeHook";
 
 const ToolBar = () => {
 
     const { appStore } = useStore()
-    const { disassembled } = appStore
+    const { packing, disassembled, disassembleDir } = appStore
 
     // 设置正在汇编的状态
     const [disassembling, setDisassembling] = useState()
@@ -29,6 +29,15 @@ const ToolBar = () => {
         }) 
     }
 
+    // 打包
+    const handleDir = () => {
+        appStore.setPacking(true)
+        BatchPack(disassembleDir, appStore.selFiles).then(result => {
+            appStore.setPacking(false)
+            console.log(result)
+        })
+    }
+
     return (
         <div style={{height: '36px', padding: "8px 16px"}}>
             {!disassembled &&  
@@ -38,8 +47,14 @@ const ToolBar = () => {
                 {!disassembling ? '反编译' : '反编译中'}
             </Button>
             }
-            {disassembling && <Spin />}
-            {disassembled && <div></div>}
+            {disassembled && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                <Button style={{ padding: '6px 24px',alignSelf: 'flex-start'  }} theme="solid" type="primary"
+                    onClick={handleDir}
+                    disabled={appStore.packing}>
+                    打包
+                </Button>
+            </div>}
+            {(disassembling || appStore.packing) && <Spin style={{marginLeft: '8px'}} />}
         </div>
     )
 }
@@ -47,7 +62,7 @@ const ToolBar = () => {
 const Controller = () => {
 
     const { appStore } = useStore()
-    const { disassembled, apkInfo } = appStore
+    const { disassembled, apkInfo, packing } = appStore
     const { Text } = Typography;
     
 
@@ -57,12 +72,8 @@ const Controller = () => {
             {/* <Divider margin='12px'/> */}
             <div style={{ display: 'flex', flexDirection: 'column', flexShrink: '1', flexGrow: '1', overflow: 'auto' }}>
             { !disassembled && <TerminalUI />}
-            { disassembled && <FileList />}
-                {/* {
-                    apkInfo.map((item, index) => {
-                        return <Text key={index} style={{ whiteSpace: 'pre-wrap'}}>{item}</Text>
-                    })
-                } */}
+            { disassembled && !packing && <FileList />}
+            { disassembled && packing && <TerminalUI />}
             </div>
         </div>
     )

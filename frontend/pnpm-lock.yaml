@@ -8,6 +8,7 @@ specifiers:
   '@types/react-dom': ^18.0.6
   '@vitejs/plugin-react': ^2.0.1
   mobx: ^6.12.0
+  mobx-persist-store: ^1.1.4
   mobx-react: ^9.1.0
   react: ^18.2.0
   react-dom: ^18.2.0
@@ -20,6 +21,7 @@ dependencies:
   '@douyinfe/semi-illustrations': registry.npmmirror.com/@douyinfe/semi-illustrations/2.51.0_react@18.2.0
   '@douyinfe/semi-ui': registry.npmmirror.com/@douyinfe/semi-ui/2.51.0_biqbaboplfbrettd7655fr4n2y
   mobx: registry.npmmirror.com/mobx/6.12.0
+  mobx-persist-store: registry.npmmirror.com/mobx-persist-store/1.1.4_mobx@6.12.0
   mobx-react: registry.npmmirror.com/mobx-react/9.1.0_tew2cxsn3epqvaabosbtllz64e
   react: registry.npmmirror.com/react/18.2.0
   react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
@@ -1227,6 +1229,17 @@ packages:
     version: 3.1.2
     dependencies:
       brace-expansion: registry.npmmirror.com/brace-expansion/1.1.11
+    dev: false
+
+  registry.npmmirror.com/mobx-persist-store/1.1.4_mobx@6.12.0:
+    resolution: {integrity: sha512-kGdTpnpfvTC61XiqlYnAN+gvkGiYfLgGpV1nj6k8hHom8V+vrPJyYMg+V1Rc5dNi7sa+qrHlbZfCvbaJoAtpSg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/mobx-persist-store/-/mobx-persist-store-1.1.4.tgz}
+    id: registry.npmmirror.com/mobx-persist-store/1.1.4
+    name: mobx-persist-store
+    version: 1.1.4
+    peerDependencies:
+      mobx: '*'
+    dependencies:
+      mobx: registry.npmmirror.com/mobx/6.12.0
     dev: false
 
   registry.npmmirror.com/mobx-react-lite/4.0.5_tew2cxsn3epqvaabosbtllz64e:

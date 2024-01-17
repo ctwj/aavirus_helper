@@ -5,8 +5,11 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 
 	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
@@ -15,12 +18,32 @@ import (
 // ==================================================
 // 生成随机字符串
 func GenerateRandomString(len int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, len)
 	for i := range b {
 		b[i] = charset[rand.Intn(len)]
 	}
 	return string(b)
+}
+
+// ==================================================
+// 生成随机dname
+// 示例 CN=Your Name, OU=Your Organization, O=Your Company, L=Your City, ST=Your State, C=Your Country
+func GenerateRandomDName() string {
+	return fmt.Sprintf("CN=%s, OU=%s, O=%s, L=%s, ST=%s C=%s",
+		GenerateRandomString(2),
+		GenerateRandomString(4),
+		GenerateRandomString(6),
+		GenerateRandomString(6),
+		GenerateRandomString(6),
+		GenerateRandomString(6),
+	)
+}
+
+// ==================================================
+// 生成随机包名
+func GenerateRandomPackName() string {
+	return fmt.Sprintf("%s.%s.%s", GenerateRandomString(6), GenerateRandomString(6), GenerateRandomString(6))
 }
 
 // ==================================================
@@ -205,4 +228,95 @@ func HumanFileSize(size float64) string {
 	getSize := Round(math.Pow(1024, base-math.Floor(base)), .5, 2)
 	getSuffix := suffixes[int(math.Floor(base))]
 	return strconv.FormatFloat(getSize, 'f', -1, 64) + " " + string(getSuffix)
+}
+
+// ChangePackName 修改apk包名
+func ChangePackName(codePath, newPackName string) {
+	manifestFile := path.Join(codePath, "AndroidManifest.xml")
+	apktoolFile := path.Join(codePath, "apktool.yml")
+
+	// 读取文件内容
+	content, err := os.ReadFile(manifestFile)
+	if err != nil {
+		fmt.Println("Error reading AndroidManifest.xml:", err)
+		return
+	}
+
+	// step 1, change  AndroidManifest.xml 中包名
+	// 提取旧包名
+	oldPackNamePattern := regexp.MustCompile(`package="(.*?)"`)
+	oldPackNameMatches := oldPackNamePattern.FindStringSubmatch(string(content))
+	if len(oldPackNameMatches) < 2 {
+		fmt.Println("Old package name not found in AndroidManifest.xml")
+		return
+	}
+
+	oldPackName := oldPackNameMatches[1]
+	// 替换包名
+	newContent := regexp.MustCompile(oldPackName).ReplaceAllString(string(content), newPackName)
+	// 将修改后的内容写回文件
+	if err := os.WriteFile(manifestFile, []byte(newContent), os.ModePerm); err != nil {
+		fmt.Println("Error writing AndroidManifest.xml:", err)
+		return
+	}
+
+	// 读取文件内容
+	configContent, err := os.ReadFile(apktoolFile)
+	if err != nil {
+		fmt.Println("Error reading AndroidManifest.xml:", err)
+		return
+	}
+
+	// 替换内容
+	oldStr := "renameManifestPackage: null"
+	newStr := fmt.Sprintf("renameManifestPackage: %s", newPackName)
+	newConfigContent := strings.ReplaceAll(string(configContent), oldStr, newStr)
+
+	// 将修改后的内容写回文件
+	if err := os.WriteFile(apktoolFile, []byte(newConfigContent), os.ModePerm); err != nil {
+		fmt.Println("Error writing AndroidManifest.xml:", err)
+		return
+	}
+
+	// step 1，change  apktool.yml 中包名
+}
+
+func IsFile(path string) bool {
+	stat, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return !stat.IsDir()
+}
+
+func GenerateTargetFileName(relativePath, removePath string) string {
+	isFile := IsFile(removePath)
+	preSuff := "_d"
+	if isFile {
+		preSuff = "_f"
+	}
+
+	// 使用 strings.Split 将字符串切分为数组
+	parts := strings.Split(relativePath, "/")
+
+	// 移除第一个元素（如果为空字符串）
+	if len(parts) > 0 && parts[0] == "" {
+		parts = parts[1:]
+	}
+
+	// 取出最后一个字符串
+	lastPart := parts[len(parts)-1]
+
+	// 将其他部分连接为一个字符串，使用 "-"
+	var joinedParts string
+	if len(parts) > 1 {
+		joinedParts = strings.Join(parts[1:len(parts)-1], "-")
+	} else {
+		joinedParts = "d" + parts[0]
+	}
+
+	// 将连接的字符串与最后一个字符串连接起来
+	result := joinedParts + preSuff + lastPart
+
+	return result
 }
