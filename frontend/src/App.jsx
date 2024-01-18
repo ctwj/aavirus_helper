@@ -9,7 +9,7 @@ import Controller from './component/Controller'
 
 import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime'
 
-// import { CloseApp } from "../wailsjs/go/project/Project"
+import { CloseApp } from "../wailsjs/go/project/Project"
 
 
 const App = () => {
@@ -43,9 +43,19 @@ const App = () => {
             return;
         }
         setClosing(true)
-        // CloseApp(appStore.disassembleDir).then(result => { // 关闭app
-        //     appStore.closeApp()
-        // })
+
+        // 未反编译， 直接关闭
+        if (!appStore.disassembled) {
+            appStore.closeApp()
+            setClosing(false)
+            return
+        }
+
+        // 反编译了， 需要移除代码
+        CloseApp(appStore.disassembleDir).then(result => { // 关闭app
+            setClosing(false)
+            appStore.closeApp()
+        })
     }
 
     return (
@@ -97,10 +107,10 @@ const App = () => {
                             </>
                         }
                     >
-                    <span>{appStore.path}</span>
-                    <Button theme='borderless' type='primary' size='small' style={{ marginLeft: '12px' }}
+                    <span>{appStore?.path?.split('/')?.pop()}</span>
+                    {appStore.path && <Button theme='borderless' type='primary' size='small' style={{ marginLeft: '12px' }}
                         onClick={closeApp}
-                        disabled={closing}>关闭App</Button>
+                        disabled={closing}>关闭App</Button>}
                     </Nav>
                 </Header>
                 <Content

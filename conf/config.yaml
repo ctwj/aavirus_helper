@@ -11,7 +11,7 @@ log:
 
 env:
     tool_dir: tools
-    apktool_name: apktool_2.4.0.jar
+    apktool_name: apktool_2.9.2.jar
     android_sdk_path:
     android_sdk_env: ANDROID_HOME
     android_build_tool_version: 

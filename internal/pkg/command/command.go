@@ -105,6 +105,14 @@ func (c *Command) PackCommand(codePath, destFile string) string {
 	return cmd
 }
 
+func (c *Command) EmptyFrameworkCommand() string {
+	var cmd string
+	java := c.Tool.Java
+	apktool := c.Tool.ApkTool
+	cmd = fmt.Sprintf("%s -jar  %s empty-framework-dir --force", java, apktool)
+	return cmd
+}
+
 func (c *Command) CertGenerateCommand(randomPass, randomDName, jksPath string) string {
 	var cmd string
 	keytool := c.Tool.KeyTool
@@ -119,7 +127,7 @@ func (c *Command) ApksignerCommand(apkPath, destPath, jksPath, randomPass string
 	var cmd string
 	apksigner := c.Tool.ApkSigner
 
-	cmd = fmt.Sprintf("%s sign --ks %s --ks-key-alias my-alias --ks-pass \"pass:%s\" --key-pass \"%s\" --in %s --out %s",
+	cmd = fmt.Sprintf("%s sign --ks %s --ks-key-alias my-alias --ks-pass \"pass:%s\" --key-pass \"pass:%s\" --in %s --out %s",
 		apksigner, jksPath, randomPass, randomPass, apkPath, destPath,
 	)
 
@@ -209,14 +217,15 @@ func (c *Command) DoPackAfterRemoveItem(codePath string, removeItem string) (str
 	randomDName := lib.GenerateRandomDName()
 
 	// 打包签名后的文件
-	destFile_2 := path.Join(config.TmpDir, desFileName+"_2.apk")
+	// destFile_2 := path.Join(config.TmpDir, desFileName+"_2.apk")
 	destFile_3 := path.Join(config.OutputDir, desFileName+".apk")
 
 	c.Run([]string{
-		c.PackCommand(codePath, destFile_1),
+		c.EmptyFrameworkCommand(),
+		c.PackCommand(targetCodeDir, destFile_1),
 		c.CertGenerateCommand(randomPass, randomDName, jksPath),
-		c.ApksignerCommand(destFile_1, destFile_2, jksPath, randomPass),
-		c.ZipalignCommand(destFile_2, destFile_3),
+		c.ApksignerCommand(destFile_1, destFile_3, jksPath, randomPass),
+		// c.ZipalignCommand(destFile_2, destFile_3), // 不对齐
 	})
 
 	return destFile_3, nil
