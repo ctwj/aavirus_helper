@@ -20,12 +20,13 @@ const App = () => {
     // 处理go传递过来的消息
     useEffect(() => {
         EventsOn('message', (optionalData) => {
-            console.log(optionalData);
             appStore.addTerminalLineData(<TerminalOutput>{optionalData}</TerminalOutput>)
         })
         EventsOn('command', (optionalData) => {
-            console.log(optionalData);
             appStore.addTerminalLineData(<TerminalInput>{optionalData}</TerminalInput>)
+        })
+        EventsOn('progress', (optionalData) => {
+            appStore.setProgress(optionalData)
         })
         return () => {
             EventsOff('message')
@@ -110,7 +111,7 @@ const App = () => {
                     <span>{appStore?.path?.split('/')?.pop()}</span>
                     {appStore.path && <Button theme='borderless' type='primary' size='small' style={{ marginLeft: '12px' }}
                         onClick={closeApp}
-                        disabled={closing}>关闭App</Button>}
+                        disabled={closing}>关闭Apk</Button>}
                     </Nav>
                 </Header>
                 <Content

@@ -25,3 +25,7 @@ export function GetApkInfo(arg1) {
 export function OpenFile() {
   return window['go']['project']['Project']['OpenFile']();
 }
+
+export function OpenOutput() {
+  return window['go']['project']['Project']['OpenOutput']();
+}

@@ -33,8 +33,8 @@ const TreeItemNode = (props) => {
     return <div style={nodeStyle}>
         <span>{name}</span>
         <div style={{ display: 'flex', alignItems: 'center'}}>
-            <Text>{humanSize}</Text>
-            <ButtonGroup
+            <Text style={{marginRight: '8px'}}>{humanSize}</Text>
+            {/* <ButtonGroup
                 size="small"
                 theme="borderless"
                 >
@@ -45,7 +45,7 @@ const TreeItemNode = (props) => {
                     }}
                 >提示</Button>
                 <Button>点击</Button>
-            </ButtonGroup>
+            </ButtonGroup> */}
         </div>
     </div>
 }
@@ -65,7 +65,6 @@ const FileList = (props) => {
 
 
     const treeSelectChange = e => {
-        console.log('当前所有选中项: ', e)
         appStore.setSelFiles(e)
     } 
     
@@ -82,7 +81,7 @@ const FileList = (props) => {
             if (element.isDir) { // 如果是 dir
                 element.label = <TreeItemNode node={element} />
             } else { // 如果是文件
-                element.label = <div>{label}</div>
+                element.label = <TreeItemNode node={element} />
             }
             return element;
         });

@@ -10,6 +10,9 @@ export class App {
     // 打包状态
     packing = false
 
+    // 打包进度
+    progress = ""
+
     // apk 路径
     path = ""
 
@@ -40,6 +43,7 @@ export class App {
             disassembleFileList: observable, // 反汇编文件夹的文件列表
             selFiles: observable,            // 选择的文件列表
             packing: observable,             // 是否正在打包
+            progress: observable,            // 打包进度
             terminalLineData: observable,
             fileListTreeData: computed,
             setDisassembled: action,        // 设置 disassembled 状态
@@ -50,6 +54,7 @@ export class App {
             setApkInfo: action,             // 设置 apk 的基本信息
             setSelFiles: action,            // 设置选择的数据
             setPacking: action,             // 设置是否正在打包
+            setProgress: action,            // 设置打包进度
             closeApp: action,               // 关闭app
         })
         makePersistable(
@@ -60,11 +65,6 @@ export class App {
                     'path',
                     'disassembled',
                     'disassembleDir',
-                    {
-                        key: 'terminalLineData',
-                        serialize: (value) => JSON.stringify(value),
-                        deserialize: (value) => JSON.parse(value),
-                    },
                     {
                         key: 'disassembleFileList',
                         serialize: (value) => JSON.stringify(value),
@@ -115,7 +115,11 @@ export class App {
     }
 
     setPacking (val) {
-        this.pack = val
+        this.packing = val
+    }
+
+    setProgress (val) {
+        this.progress = val
     }
 
     addTerminalLineData (line) {

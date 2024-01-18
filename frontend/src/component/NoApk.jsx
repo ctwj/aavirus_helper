@@ -18,7 +18,6 @@ function NoApk() {
             appStore.setApkPath(apkPath)
             GetApkInfo(apkPath).then(result => {
                 LogPrint(JSON.stringify(result))
-                console.log(result)
                 appStore.setApkInfo(result.info)
             })
         })

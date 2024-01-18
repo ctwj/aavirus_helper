@@ -230,6 +230,7 @@ func HumanFileSize(size float64) string {
 	return strconv.FormatFloat(getSize, 'f', -1, 64) + " " + string(getSuffix)
 }
 
+// ==================================================
 // ChangePackName 修改apk包名
 func ChangePackName(codePath, newPackName string) {
 	manifestFile := path.Join(codePath, "AndroidManifest.xml")
@@ -281,6 +282,8 @@ func ChangePackName(codePath, newPackName string) {
 	// step 1，change  apktool.yml 中包名
 }
 
+// ==================================================
+// 生成将要生成的apk的文件名
 func IsFile(path string) bool {
 	stat, err := os.Stat(path)
 	if err != nil {
@@ -291,9 +294,9 @@ func IsFile(path string) bool {
 
 func GenerateTargetFileName(relativePath, removePath string) string {
 	isFile := IsFile(removePath)
-	preSuff := "_d"
+	preSuff := "-d"
 	if isFile {
-		preSuff = "_f"
+		preSuff = "-f"
 	}
 
 	// 使用 strings.Split 将字符串切分为数组
@@ -306,17 +309,62 @@ func GenerateTargetFileName(relativePath, removePath string) string {
 
 	// 取出最后一个字符串
 	lastPart := parts[len(parts)-1]
+	parts = parts[:len(parts)-1] // 移除最后一个元素
 
 	// 将其他部分连接为一个字符串，使用 "-"
 	var joinedParts string
 	if len(parts) > 1 {
 		joinedParts = strings.Join(parts[1:len(parts)-1], "-")
 	} else {
-		joinedParts = "d" + parts[0]
+		if len(parts) == 0 {
+			joinedParts = ""
+		} else {
+			joinedParts = parts[0]
+		}
 	}
 
 	// 将连接的字符串与最后一个字符串连接起来
 	result := joinedParts + preSuff + lastPart
+	if result[0:1] == "-" {
+		result = result[1:]
+	}
 
 	return result
+}
+
+// ==================================================
+// 移除文件
+func removePath(path string) error {
+	info, err := os.Stat(path)
+	if err != nil {
+		return err
+	}
+
+	if info.IsDir() {
+		// 删除文件夹及其内容
+		err := os.RemoveAll(path)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Removed directory: %s\n", path)
+	} else {
+		// 删除文件
+		err := os.Remove(path)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("Removed file: %s\n", path)
+	}
+
+	return nil
+}
+
+func RemovePaths(paths []string) error {
+	for _, path := range paths {
+		err := removePath(path)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

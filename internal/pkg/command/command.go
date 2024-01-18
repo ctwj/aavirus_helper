@@ -75,6 +75,20 @@ func (c *Command) Run(cmds []string) ([]string, error) {
 	return output, nil
 }
 
+func (c *Command) OpenFolderCommand(path string) string {
+
+	var cmd string
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = fmt.Sprintf("open \"%s\"", path)
+	case "linux":
+		cmd = fmt.Sprintf("xdg-open \"%s\"", path)
+	case "windows":
+		cmd = fmt.Sprintf("explorer \"%s\"", path)
+	}
+	return cmd
+}
+
 func (c *Command) CopyCommand(source, dest string) string {
 	var cmd string
 	if runtime.GOOS != "windows" {
@@ -209,6 +223,7 @@ func (c *Command) DoPackAfterRemoveItem(codePath string, removeItem string) (str
 	// 第四部， 打包, 签名
 	relativePath := strings.Replace(removeItem, codePath, "", -1)
 	desFileName := lib.GenerateTargetFileName(relativePath, removeItem)
+
 	destFile_1 := path.Join(config.TmpDir, desFileName+"_1.apk")
 
 	// 签名相关
@@ -228,5 +243,16 @@ func (c *Command) DoPackAfterRemoveItem(codePath string, removeItem string) (str
 		// c.ZipalignCommand(destFile_2, destFile_3), // 不对齐
 	})
 
+	lib.RemovePaths([]string{
+		targetCodeDir,
+		jksPath,
+		destFile_1,
+	})
+
 	return destFile_3, nil
+}
+
+func (c *Command) OpenOutput() {
+	cmd := c.OpenFolderCommand(config.OutputDir)
+	c.Run([]string{cmd})
 }

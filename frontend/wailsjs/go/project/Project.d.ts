@@ -12,3 +12,5 @@ export function FileList(arg1:string):Promise<any>;
 export function GetApkInfo(arg1:string):Promise<any>;
 
 export function OpenFile():Promise<any>;
+
+export function OpenOutput():Promise<any>;

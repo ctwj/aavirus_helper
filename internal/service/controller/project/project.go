@@ -1,6 +1,7 @@
 package project
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/ctwj/aavirus_helper/internal/lib"
@@ -80,6 +81,7 @@ func (p *Project) Disassemble(apkPath string) interface{} {
 // 批量打包 删除文件后进行打包， 需要排除掉 根目录，排除掉 apktool.yml
 func (p *Project) BatchPack(apkdir string, list []string) interface{} {
 	var result []string
+	ctx := ctlCtx.Get()
 	apkTool := path.Join(apkdir, "apktool.yml")
 
 	for _, item := range list {
@@ -88,15 +90,24 @@ func (p *Project) BatchPack(apkdir string, list []string) interface{} {
 		}
 	}
 
-	for _, removePath := range result {
+	for i, removePath := range result {
 		// 打包
+
+		progress := fmt.Sprintf("%d/%d %s", i+1, len(result), path.Base(removePath))
+		runtime.EventsEmit(*ctx, "progress", progress)
 		command.NewCommand().DoPackAfterRemoveItem(apkdir, removePath)
 	}
+	runtime.EventsEmit(*ctx, "progress", "")
 
 	return ""
 }
 
-func (p *Project) CloseApp(apkdir string) interface{} {
+func (p *Project) CloseApp(codedir string) interface{} {
 
+	return ""
+}
+
+func (p *Project) OpenOutput() interface{} {
+	command.NewCommand().OpenOutput()
 	return ""
 }
