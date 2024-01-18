@@ -100,7 +100,7 @@ func (c *Command) PackCommand(codePath, destFile string) string {
 	java := c.Tool.Java
 	apkTool := c.Tool.ApkTool
 
-	fmt.Sprintf("%s -jar %sb app-debug -o %s", java, apkTool, destFile)
+	cmd = fmt.Sprintf("%s -jar %s b %s -o %s", java, apkTool, codePath, destFile)
 
 	return cmd
 }
@@ -109,7 +109,7 @@ func (c *Command) CertGenerateCommand(randomPass, randomDName, jksPath string) s
 	var cmd string
 	keytool := c.Tool.KeyTool
 
-	fmt.Sprintf("%s -genkey -v -keystore  %s -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass %s -keypass %s -dname \"%s\" -noprompt",
+	cmd = fmt.Sprintf("%s -genkey -v -keystore  %s -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass %s -keypass %s -dname \"%s\" -noprompt",
 		keytool, jksPath, randomPass, randomPass, randomDName,
 	)
 	return cmd
@@ -119,7 +119,7 @@ func (c *Command) ApksignerCommand(apkPath, destPath, jksPath, randomPass string
 	var cmd string
 	apksigner := c.Tool.ApkSigner
 
-	fmt.Sprintf("%s sign --ks %s --ks-key-alias my-alias --ks-pass \"pass:%s\" --key-pass \"%s\" --in %s --out %s",
+	cmd = fmt.Sprintf("%s sign --ks %s --ks-key-alias my-alias --ks-pass \"pass:%s\" --key-pass \"%s\" --in %s --out %s",
 		apksigner, jksPath, randomPass, randomPass, apkPath, destPath,
 	)
 
@@ -130,7 +130,7 @@ func (c *Command) ZipalignCommand(sourceApk, destApk string) string {
 	var cmd string
 	zipalign := c.Tool.Zipalign
 
-	fmt.Sprintf("%s -v 4 %s %s",
+	cmd = fmt.Sprintf("%s -v 4 %s %s",
 		zipalign, sourceApk, destApk)
 
 	return cmd
@@ -162,21 +162,6 @@ func (c *Command) DisassemblyCommand(apkPath string) (string, string) {
 }
 
 // java -jar ~/tools/apktool.jar b app-debug -o new-app-debug.apk
-
-/**
-keytool -genkey -v -keystore my.jks -alias my-alias -keyalg RSA -keysize 2048 -validity 10000
-
-# 生成证书
-keytool -genkey -v -keystore my.jks -alias my-alias -keyalg RSA -keysize 2048 -validity 10000 -storepass random-keystore-password -keypass random-key-password -dname "CN=Your Name, OU=Your Organization, O=Your Company, L=Your City, ST=Your State, C=Your Country" -noprompt
-
-# 签名
-~/Android/Sdk/build-tools/34.0.0/apksigner sign --ks my.jks --ks-key-alias my-alias --ks-pass "pass:random-keystore-password" --key-pass "pass:random-key-password" --in new-app-debug.apk --out result.apk
-
-# 验签
-jarsigner -verify -verbose -certs result.apk
-
-~/Android/Sdk/build-tools/34.0.0/zipalign -v 4 new-app-debug.apk aligned.apk
-**/
 
 func (c *Command) DoDisassembly(apkPath string) (string, error) {
 	outdir, cmd := c.DisassemblyCommand(apkPath)

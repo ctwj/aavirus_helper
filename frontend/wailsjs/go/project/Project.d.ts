@@ -3,6 +3,8 @@
 
 export function BatchPack(arg1:string,arg2:Array<string>):Promise<any>;
 
+export function CloseApp(arg1:string):Promise<any>;
+
 export function Disassemble(arg1:string):Promise<any>;
 
 export function FileList(arg1:string):Promise<any>;

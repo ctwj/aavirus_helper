@@ -95,3 +95,8 @@ func (p *Project) BatchPack(apkdir string, list []string) interface{} {
 
 	return ""
 }
+
+func (p *Project) CloseApp(apkdir string) interface{} {
+
+	return ""
+}

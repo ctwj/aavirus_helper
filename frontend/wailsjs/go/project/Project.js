@@ -6,6 +6,10 @@ export function BatchPack(arg1, arg2) {
   return window['go']['project']['Project']['BatchPack'](arg1, arg2);
 }
 
+export function CloseApp(arg1) {
+  return window['go']['project']['Project']['CloseApp'](arg1);
+}
+
 export function Disassemble(arg1) {
   return window['go']['project']['Project']['Disassemble'](arg1);
 }

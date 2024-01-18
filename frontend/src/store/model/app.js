@@ -50,6 +50,7 @@ export class App {
             setApkInfo: action,             // 设置 apk 的基本信息
             setSelFiles: action,            // 设置选择的数据
             setPacking: action,             // 设置是否正在打包
+            closeApp: action,               // 关闭app
         })
         makePersistable(
             this, 
@@ -119,5 +120,16 @@ export class App {
 
     addTerminalLineData (line) {
         this.terminalLineData = [...this.terminalLineData, line]
+    }
+
+    closeApp () {
+        this.path = ""
+        this.packing = false
+        this.disassembled = false
+        this.apkInfo = []
+        this.disassembleDir = ""
+        this.terminalLineData = []
+        this.disassembleFileList = {}
+        this.selFiles = []
     }
 }

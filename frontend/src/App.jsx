@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Layout, Nav, Button, Breadcrumb, Skeleton, Avatar } from '@douyinfe/semi-ui';
+import React, { useEffect, useState } from 'react';
+import { Layout, Nav, Button, Toast, Skeleton, Avatar } from '@douyinfe/semi-ui';
 import { IconBell, IconHelpCircle, IconBytedanceLogo, IconHome, IconHistogram, IconLive, IconSetting, IconSemiLogo } from '@douyinfe/semi-icons';
 import { TerminalOutput, TerminalInput } from 'react-terminal-ui'
 import { useStore, observer } from './hooks/storeHook';
@@ -9,13 +9,13 @@ import Controller from './component/Controller'
 
 import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime'
 
-import {Greet} from "../wailsjs/go/main/App";
-import {Create} from "../wailsjs/go/task/Task";
+// import { CloseApp } from "../wailsjs/go/project/Project"
 
 
 const App = () => {
     const { Header, Footer, Sider, Content } = Layout;
     const { appStore } = useStore()
+    const [closing, setClosing] = useState(false)
 
     // 处理go传递过来的消息
     useEffect(() => {
@@ -32,6 +32,21 @@ const App = () => {
             EventsOff('command')
         }
     }, [])
+
+    // 关闭已经打开的app
+    const closeApp = () => {
+        if (appStore.packing) {
+            Toast.error({
+                content: '打包中！请在空闲状态再关闭',
+                duration: 3,
+            })
+            return;
+        }
+        setClosing(true)
+        // CloseApp(appStore.disassembleDir).then(result => { // 关闭app
+        //     appStore.closeApp()
+        // })
+    }
 
     return (
         <Layout style={{ border: '1px solid var(--semi-color-border)', height: '100%' }}>
@@ -81,7 +96,12 @@ const App = () => {
                                 </Avatar>
                             </>
                         }
-                    ></Nav>
+                    >
+                    <span>{appStore.path}</span>
+                    <Button theme='borderless' type='primary' size='small' style={{ marginLeft: '12px' }}
+                        onClick={closeApp}
+                        disabled={closing}>关闭App</Button>
+                    </Nav>
                 </Header>
                 <Content
                     style={{
