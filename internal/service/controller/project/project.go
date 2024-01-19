@@ -2,10 +2,12 @@ package project
 
 import (
 	"fmt"
+	"log"
 	"path"
 
 	"github.com/ctwj/aavirus_helper/internal/lib"
 	"github.com/ctwj/aavirus_helper/internal/pkg/command"
+	"github.com/ctwj/aavirus_helper/internal/pkg/config"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 
 	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
@@ -79,10 +81,12 @@ func (p *Project) Disassemble(apkPath string) interface{} {
 }
 
 // 批量打包 删除文件后进行打包， 需要排除掉 根目录，排除掉 apktool.yml
-func (p *Project) BatchPack(apkdir string, list []string) interface{} {
+func (p *Project) BatchPack(apkdir string, list []string, mode string) interface{} {
 	var result []string
 	ctx := ctlCtx.Get()
 	apkTool := path.Join(apkdir, "apktool.yml")
+
+	log.Println(config.DEBUG_TAG, mode)
 
 	for _, item := range list {
 		if item != apkdir && item != apkTool {
@@ -90,13 +94,22 @@ func (p *Project) BatchPack(apkdir string, list []string) interface{} {
 		}
 	}
 
-	for i, removePath := range result {
-		// 打包
-
-		progress := fmt.Sprintf("%d/%d %s", i+1, len(result), path.Base(removePath))
-		runtime.EventsEmit(*ctx, "progress", progress)
-		command.NewCommand().DoPackAfterRemoveItem(apkdir, removePath)
+	// 简单模式
+	if mode == "single" {
+		for i, removePath := range result {
+			// 打包
+			progress := fmt.Sprintf("simple: %s %d/%d", path.Base(removePath), i+1, len(result))
+			runtime.EventsEmit(*ctx, "progress", progress)
+			command.NewCommand().DoPackAfterRemoveItem(apkdir, removePath)
+		}
 	}
+
+	if mode == "group" {
+		progress := "group: 1/1"
+		runtime.EventsEmit(*ctx, "progress", progress)
+		command.NewCommand().DoPackAfterRemoveItems(apkdir, result)
+	}
+
 	runtime.EventsEmit(*ctx, "progress", "")
 
 	return ""

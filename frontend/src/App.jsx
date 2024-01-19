@@ -4,8 +4,10 @@ import { IconBell, IconHelpCircle, IconBytedanceLogo, IconHome, IconHistogram, I
 import { TerminalOutput, TerminalInput } from 'react-terminal-ui'
 import { useStore, observer } from './hooks/storeHook';
 
-import NoApk from './component/NoApk';
-import Controller from './component/Controller'
+// 特征码定位
+import SignatureCode from './page/signature_code/index'
+// 帮助页
+import Help from './page/help';
 
 import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime'
 
@@ -16,6 +18,17 @@ const App = () => {
     const { Header, Footer, Sider, Content } = Layout;
     const { appStore } = useStore()
     const [closing, setClosing] = useState(false)
+
+    const [page, setPage] = useState('Home')
+
+    // Nav 选中项
+    const defaultSelectedKeys = [page]
+
+    // Nav 选中事件
+    const onSelect = (item) => {
+        const { itemKey } = item
+        setPage(itemKey)
+    }
 
     // 处理go传递过来的消息
     useEffect(() => {
@@ -63,12 +76,13 @@ const App = () => {
         <Layout style={{ border: '1px solid var(--semi-color-border)', height: '100%' }}>
             <Sider style={{ backgroundColor: 'var(--semi-color-bg-1)' }}>
                 <Nav
-                    defaultSelectedKeys={['Home']}
+                    defaultSelectedKeys={defaultSelectedKeys}
+                    onSelect={onSelect}
                     style={{ maxWidth: 220, height: '100%' }}
                     items={[
-                        { itemKey: 'Home', text: '首页', icon: <IconHome size="large" /> },
+                        { itemKey: 'Home', text: '特征码定位', icon: <IconHome size="large" /> },
                         // { itemKey: 'Histogram', text: '基础数据', icon: <IconHistogram size="large" /> },
-                        { itemKey: 'Live', text: '使用说明', icon: <IconLive size="large" /> },
+                        { itemKey: 'Help', text: '使用说明', icon: <IconLive size="large" /> },
                         // { itemKey: 'Setting', text: '设置', icon: <IconSetting size="large" /> },
                     ]}
                     header={{
@@ -78,6 +92,7 @@ const App = () => {
                     footer={{
                         collapseButton: true,
                     }}
+                    defaultIsCollapsed
                 />
             </Sider>
             <Layout>
@@ -108,7 +123,7 @@ const App = () => {
                             </>
                         }
                     >
-                    <span>{appStore?.path?.split('/')?.pop()}</span>
+                    <span>{appStore?.path?.split('/')?. pop()}</span>
                     {appStore.path && <Button theme='borderless' type='primary' size='small' style={{ marginLeft: '12px' }}
                         onClick={closeApp}
                         disabled={closing}>关闭Apk</Button>}
@@ -135,12 +150,9 @@ const App = () => {
                             boxSizing: 'border-box',
                         }}
                     >
-                        {/* { store.counter } */}
-                        { appStore.path ? <Controller /> : <NoApk />}
-                        {/* <Skeleton placeholder={<Skeleton.Paragraph rows={2} />} loading={true}>
-                            <p>Hi, Bytedance dance dance.</p>
-                            <p>Hi, Bytedance dance dance.</p>
-                        </Skeleton> */}
+                        { page === 'Home' && <SignatureCode /> /** 首页显示 特征码定位 */}
+                        { page === 'Help' && <Help /> /** 首页显示 特征码定位 */}
+                        
                     </div>
                 </Content>
                 <Footer

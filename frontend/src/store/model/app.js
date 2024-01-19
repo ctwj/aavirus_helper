@@ -31,6 +31,9 @@ export class App {
     // FileList 中选中的文件
     selFiles = []
 
+    // 使用功能， file 文件处理，  manifest 配置文件处理  smail 代码处理
+    func = 'file'
+
     
 
 
@@ -44,6 +47,7 @@ export class App {
             selFiles: observable,            // 选择的文件列表
             packing: observable,             // 是否正在打包
             progress: observable,            // 打包进度
+            func: observable,
             terminalLineData: observable,
             fileListTreeData: computed,
             setDisassembled: action,        // 设置 disassembled 状态
@@ -55,6 +59,7 @@ export class App {
             setSelFiles: action,            // 设置选择的数据
             setPacking: action,             // 设置是否正在打包
             setProgress: action,            // 设置打包进度
+            setFunc: action,                // 设置功能
             closeApp: action,               // 关闭app
         })
         makePersistable(
@@ -120,6 +125,10 @@ export class App {
 
     setProgress (val) {
         this.progress = val
+    }
+
+    setFunc (val) {
+        this.func = val
     }
 
     addTerminalLineData (line) {

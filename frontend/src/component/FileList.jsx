@@ -100,6 +100,7 @@ const FileList = (props) => {
         <div style={{ height: '100%' }}>
         <Tree
             treeData={renderData}
+            defaultValue={appStore.selFiles}
             directory
             showLine
             multiple
