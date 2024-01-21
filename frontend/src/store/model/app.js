@@ -32,7 +32,7 @@ export class App {
     selFiles = []
 
     // 使用功能， file 文件处理，  manifest 配置文件处理  smail 代码处理
-    func = 'file'
+    func = 'manifest'
 
     
 
@@ -65,7 +65,7 @@ export class App {
         makePersistable(
             this, 
             { 
-                name: 'SampleStore', 
+                name: 'appStore', 
                 properties: [
                     'path',
                     'disassembled',

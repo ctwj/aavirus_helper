@@ -4,21 +4,9 @@ import { useStore } from "../hooks/storeHook";
 
 import { Typography, ButtonGroup, Button, Tree, Toast } from '@douyinfe/semi-ui'
 
-
-// type FileInfo struct {
-// 	Label        string     `json:"label"`
-// 	Value        string     `json:"value"`
-// 	Key          string     `json:"key"`
-// 	Name         string     `json:"name"`
-// 	Size         int64      `json:"size"`
-// 	IsDir        bool       `json:"isDir"`
-// 	Path         string     `json:"path"`
-// 	TotalSize    int64      `json:"totalSize,omitempty"`
-// 	TotalFileNum int        `json:"totalFileNum,omitempty"`
-// 	HumanSize    string     `json:"humanSize,omitempty"`
-// 	Children     []FileInfo `json:"children,omitempty"`
-// }
-
+const showManiFest = () => {
+    appStore.setFunc('manifest')
+}
 
 const nodeStyle= {
     display: 'flex',
@@ -28,12 +16,18 @@ const nodeStyle= {
 const TreeItemNode = (props) => {
     const node = props.node
     const { name, humanSize } = node;
+
     const { Text } = Typography
 
     return <div style={nodeStyle}>
         <span>{name}</span>
         <div style={{ display: 'flex', alignItems: 'center'}}>
             <Text style={{marginRight: '8px'}}>{humanSize}</Text>
+            {name === 'AndroidManifest.xml' && <Button
+                    theme="borderless"
+                    type='secondary'
+                    onClick={showManiFest}
+                >分析</Button>}
             {/* <ButtonGroup
                 size="small"
                 theme="borderless"

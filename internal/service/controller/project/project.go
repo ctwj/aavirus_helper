@@ -50,6 +50,7 @@ func (p *Project) FileList(dir string) interface{} {
 	return list
 }
 
+// 获取 apk 基本信息
 func (p *Project) GetApkInfo(apkPath string) interface{} {
 	info, err := command.NewCommand().GetApkInfo(apkPath)
 	if err != nil {
@@ -64,6 +65,7 @@ func (p *Project) GetApkInfo(apkPath string) interface{} {
 	}
 }
 
+// 反编译 apk
 func (p *Project) Disassemble(apkPath string) interface{} {
 	outdir, err := command.NewCommand().DoDisassembly(apkPath)
 	if err != nil {
@@ -115,9 +117,22 @@ func (p *Project) BatchPack(apkdir string, list []string, mode string) interface
 	return ""
 }
 
+// 关闭打开的apk
 func (p *Project) CloseApp(codedir string) interface{} {
-
+	// 移除掉反编译的文件夹
+	lib.RemovePaths([]string{codedir})
 	return ""
+}
+
+// 获取 AndroidManifest.xml 的信息
+func (p *Project) AndroidManifestInfo(codeDir string) interface{} {
+	xmlPath := path.Join(codeDir, "AndroidManifest.xml")
+	parse := lib.ParseAndroidManifest(xmlPath)
+	content, _ := lib.ReadFileContent(xmlPath)
+	return map[string]interface{}{
+		"content": content,
+		"parse":   parse,
+	}
 }
 
 func (p *Project) OpenOutput() interface{} {

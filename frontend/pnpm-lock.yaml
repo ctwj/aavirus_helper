@@ -13,6 +13,7 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   react-terminal-ui: ^1.2.0
+  react-xml-viewer: ^2.0.1
   reset-css: ^5.0.2
   vite: ^3.0.7
 
@@ -26,6 +27,7 @@ dependencies:
   react: registry.npmmirror.com/react/18.2.0
   react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
   react-terminal-ui: registry.npmmirror.com/react-terminal-ui/1.2.0_biqbaboplfbrettd7655fr4n2y
+  react-xml-viewer: registry.npmmirror.com/react-xml-viewer/2.0.1_biqbaboplfbrettd7655fr4n2y
   reset-css: registry.npmmirror.com/reset-css/5.0.2
 
 devDependencies:
@@ -1076,6 +1078,15 @@ packages:
     engines: {node: '>=0.8.0'}
     dev: true
 
+  registry.npmmirror.com/fast-xml-parser/4.3.3:
+    resolution: {integrity: sha512-coV/D1MhrShMvU6D0I+VAK3umz6hUaxxhL0yp/9RjfiYUfAv14rDhGQL+PLForhMdr0wq3PiV07WtkkNjJjNHg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/fast-xml-parser/-/fast-xml-parser-4.3.3.tgz}
+    name: fast-xml-parser
+    version: 4.3.3
+    hasBin: true
+    dependencies:
+      strnum: registry.npmmirror.com/strnum/1.0.5
+    dev: false
+
   registry.npmmirror.com/fs.realpath/1.0.0:
     resolution: {integrity: sha512-OO0pH2lK6a0hZnAdau5ItzHPI6pUlvI7jMVnxUQRtw4owF2wk8lOSabtGDCTP4Ggrg2MbGnWO9X8K1t4+fGMDw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/fs.realpath/-/fs.realpath-1.0.0.tgz}
     name: fs.realpath
@@ -1452,6 +1463,22 @@ packages:
       react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
     dev: false
 
+  registry.npmmirror.com/react-xml-viewer/2.0.1_biqbaboplfbrettd7655fr4n2y:
+    resolution: {integrity: sha512-XMK4CXs9zu2gFBNHdyAo08YMwlbjyATY152RcZ9Eu2NUCsbomf+nZZQZySG80gtcaVE53pZXheEOZWvL0L/Cdw==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react-xml-viewer/-/react-xml-viewer-2.0.1.tgz}
+    id: registry.npmmirror.com/react-xml-viewer/2.0.1
+    name: react-xml-viewer
+    version: 2.0.1
+    engines: {node: '>=12', npm: '>=5'}
+    peerDependencies:
+      react: '>= 16.8.4'
+      react-dom: '>= 16.8.4'
+    dependencies:
+      fast-xml-parser: registry.npmmirror.com/fast-xml-parser/4.3.3
+      lodash: registry.npmmirror.com/lodash/4.17.21
+      react: registry.npmmirror.com/react/18.2.0
+      react-dom: registry.npmmirror.com/react-dom/18.2.0_react@18.2.0
+    dev: false
+
   registry.npmmirror.com/react/18.2.0:
     resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/react/-/react-18.2.0.tgz}
     name: react
@@ -1536,6 +1563,12 @@ packages:
     version: 1.4.8
     deprecated: Please use @jridgewell/sourcemap-codec instead
     dev: true
+
+  registry.npmmirror.com/strnum/1.0.5:
+    resolution: {integrity: sha512-J8bbNyKKXl5qYcR36TIO8W3mVGVHrmmxsd5PAItGkmyzwJvybiw2IVq5nqd0i4LSNSkB/sx9VHllbfFdr9k1JA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/strnum/-/strnum-1.0.5.tgz}
+    name: strnum
+    version: 1.0.5
+    dev: false
 
   registry.npmmirror.com/supports-color/5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/supports-color/-/supports-color-5.5.0.tgz}

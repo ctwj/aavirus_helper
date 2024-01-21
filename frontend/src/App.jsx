@@ -8,6 +8,8 @@ import { useStore, observer } from './hooks/storeHook';
 import SignatureCode from './page/signature_code/index'
 // 帮助页
 import Help from './page/help';
+// 命令日志
+import Log from './page/log';
 
 import { EventsOn, EventsOff } from '../wailsjs/runtime/runtime'
 
@@ -81,7 +83,7 @@ const App = () => {
                     style={{ maxWidth: 220, height: '100%' }}
                     items={[
                         { itemKey: 'Home', text: '特征码定位', icon: <IconHome size="large" /> },
-                        // { itemKey: 'Histogram', text: '基础数据', icon: <IconHistogram size="large" /> },
+                        { itemKey: 'Log', text: '运行日志', icon: <IconHistogram size="large" /> },
                         { itemKey: 'Help', text: '使用说明', icon: <IconLive size="large" /> },
                         // { itemKey: 'Setting', text: '设置', icon: <IconSetting size="large" /> },
                     ]}
@@ -152,6 +154,7 @@ const App = () => {
                     >
                         { page === 'Home' && <SignatureCode /> /** 首页显示 特征码定位 */}
                         { page === 'Help' && <Help /> /** 首页显示 特征码定位 */}
+                        { page === 'Log' && <Log /> /** 首页显示 特征码定位 */}
                         
                     </div>
                 </Content>

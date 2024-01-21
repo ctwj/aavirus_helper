@@ -14,7 +14,7 @@ export class Menu {
         makePersistable(
             this, 
             { 
-                name: 'SampleStore', 
+                name: 'menuStore', 
                 properties: [
                     'menu',
                 ], 

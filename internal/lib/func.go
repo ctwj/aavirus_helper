@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	ctlCtx "github.com/ctwj/aavirus_helper/internal/service/context"
+	"github.com/h0x0er/andromanifest"
 	"github.com/wailsapp/wails/v2/pkg/runtime"
 )
 
@@ -149,6 +150,7 @@ func FileList(dir string) (FileInfo, error) {
 			item.Value = item.Path
 			item.Key = item.Path
 			item.IsDir = false
+			item.HumanSize = HumanFileSize(float64(item.Size))
 		}
 		children = append(children, item)
 	}
@@ -157,29 +159,29 @@ func FileList(dir string) (FileInfo, error) {
 }
 
 // 计算 FileList 中文件个数 和 目录大小
-func CalculateDirSize(root *FileInfo) (int64, int) {
+func CalculateDirSize(file *FileInfo) (int64, int) {
 	var totalSize int64
 	var totalFileNum int
 	var size int64
-	size = root.Size
-	if root.IsDir {
+	size = file.Size
+	if file.IsDir {
 
 		// 计算子目录的大小
-		for i := range root.Children {
-			if root.Children[i].IsDir {
-				dirTotalSize, dirTotalFileNum := CalculateDirSize(&root.Children[i])
+		for i := range file.Children {
+			if file.Children[i].IsDir {
+				dirTotalSize, dirTotalFileNum := CalculateDirSize(&file.Children[i])
 				totalSize = totalSize + dirTotalSize
 				totalFileNum = totalFileNum + dirTotalFileNum
 			} else {
-				totalSize = totalSize + root.Children[i].Size
+				totalSize = totalSize + file.Children[i].Size
 				totalFileNum = totalFileNum + 1
 			}
 		}
 		size = totalSize
 	}
-	root.TotalSize = totalSize
-	root.TotalFileNum = totalFileNum
-	root.HumanSize = HumanFileSize(float64(size))
+	file.TotalSize = totalSize
+	file.TotalFileNum = totalFileNum
+	file.HumanSize = HumanFileSize(float64(size))
 	return totalSize, totalFileNum
 }
 
@@ -367,4 +369,21 @@ func RemovePaths(paths []string) error {
 		}
 	}
 	return nil
+}
+
+// ==================================================
+// 解析 android manifest
+func ParseAndroidManifest(file string) interface{} {
+	mf, _ := andromanifest.NewFromFile(file)
+	return mf
+}
+
+// ==================================================
+// 读取文件的内容
+func ReadFileContent(filepath string) (string, error) {
+	content, err := os.ReadFile(filepath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }
