@@ -387,3 +387,77 @@ func ReadFileContent(filepath string) (string, error) {
 	}
 	return string(content), nil
 }
+
+// ==================================================
+// 移除AndroidManifest.xml 中指定的权限
+func RemovePermissions(codepath string, permissions []string) {
+	file := path.Join(codepath, "AndroidManifest.xml")
+
+	fmt.Println(file)
+
+	// 获取内容， 并将其中的权限删除，再写回文件
+	// 读取文件内容
+	content, err := os.ReadFile(file)
+	if err != nil {
+		// 处理读取文件错误
+		panic(err)
+	}
+
+	// 将文件内容转换为字符串
+	manifestContent := string(content)
+
+	fmt.Println(permissions)
+	fmt.Println(len(permissions))
+
+	// 逐个移除指定权限
+	for _, permission := range permissions {
+		// 构建权限字符串
+		permissionString := `<uses-permission android:name="` + permission + `"/>`
+
+		fmt.Println(permissionString)
+
+		// 移除权限
+		manifestContent = strings.ReplaceAll(manifestContent, permissionString, "")
+	}
+
+	// 将更新后的内容写回文件
+	err = os.WriteFile(file, []byte(manifestContent), os.ModePerm)
+	if err != nil {
+		// 处理写回文件错误
+		panic(err)
+	}
+}
+
+// ==================================================
+// 获取权限字符串，最后一个名字
+func PermissionLastWord(permission string) string {
+	list := strings.Split(permission, ".")
+	lastName := list[len(list)-1]
+	return lastName
+}
+
+// ==================================================
+// 生成 交叉数据
+func GenerateCrossCombinationData(strArray []string) [][]string {
+	combinations := [][]string{}
+
+	for i := 0; i < len(strArray); i++ {
+		for j := i + 1; j < len(strArray); j++ {
+			combination := []string{strArray[i], strArray[j]} //strArray[i] + " " + strArray[j]
+			combinations = append(combinations, combination)
+		}
+	}
+
+	return combinations
+}
+
+// ==================================================
+// 生成 permission 类型的 apk 的名字
+func GeneratePackNameWithDelPermissions(removePermissons []string) string {
+	var permissionName []string
+	for _, item := range removePermissons {
+		permissionName = append(permissionName, PermissionLastWord(item))
+	}
+	desFileName := strings.Join(permissionName, "-") // 根据删除的权限生成包名
+	return desFileName
+}

@@ -5,6 +5,8 @@ export function AndroidManifestInfo(arg1:string):Promise<any>;
 
 export function BatchPack(arg1:string,arg2:Array<string>,arg3:string):Promise<any>;
 
+export function BatchPermissionPack(arg1:string,arg2:Array<string>,arg3:string):Promise<any>;
+
 export function CloseApp(arg1:string):Promise<any>;
 
 export function Disassemble(arg1:string):Promise<any>;

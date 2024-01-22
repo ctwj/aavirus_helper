@@ -2,12 +2,20 @@
   "$schema": "https://wails.io/schemas/config.v2.json",
   "name": "aavirus_helper",
   "outputfilename": "aavirus_helper",
-  "frontend:install": "npm install",
-  "frontend:build": "npm run build",
-  "frontend:dev:watcher": "npm run dev",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm run build",
+  "frontend:dev:watcher": "pnpm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
     "name": "ctwj",
     "email": "908504609@qq.com"
-  }
+  },
+  "info": {
+    "companyName": "None",
+    "productName": "aavirus_helper",
+    "productVersion": "0.0.1",
+    "copyright": "Copyright @ Ctwj",
+    "comments": "安卓去毒辅助，author:908504609"
+  },
+  "obfuscated": ""
 }

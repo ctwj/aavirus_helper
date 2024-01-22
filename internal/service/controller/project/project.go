@@ -117,6 +117,45 @@ func (p *Project) BatchPack(apkdir string, list []string, mode string) interface
 	return ""
 }
 
+// 批量打包 删除文件后进行打包， 需要排除掉 根目录，排除掉 apktool.yml
+func (p *Project) BatchPermissionPack(apkdir string, list []string, mode string) interface{} {
+	ctx := ctlCtx.Get()
+
+	fmt.Println(mode)
+	fmt.Println(list)
+
+	// 简单模式
+	if mode == "single" {
+		for i, removePermission := range list {
+			// 打包
+			progress := fmt.Sprintf("simple: %s %d/%d", lib.PermissionLastWord(removePermission), i+1, len(list))
+			runtime.EventsEmit(*ctx, "progress", progress)
+			command.NewCommand().DoPackAfterRemovePermission(apkdir, []string{removePermission})
+		}
+	}
+
+	if mode == "group" {
+		progress := "group: 1/1"
+		runtime.EventsEmit(*ctx, "progress", progress)
+		command.NewCommand().DoPackAfterRemovePermission(apkdir, list)
+	}
+
+	if mode == "cross" {
+		crossList := lib.GenerateCrossCombinationData(list)
+		for i, removePermissions := range crossList {
+			// 打包
+			name := lib.GeneratePackNameWithDelPermissions(removePermissions)
+			progress := fmt.Sprintf("simple: %s %d/%d", name, i+1, len(crossList))
+			runtime.EventsEmit(*ctx, "progress", progress)
+			command.NewCommand().DoPackAfterRemovePermission(apkdir, removePermissions)
+		}
+	}
+
+	runtime.EventsEmit(*ctx, "progress", "")
+
+	return ""
+}
+
 // 关闭打开的apk
 func (p *Project) CloseApp(codedir string) interface{} {
 	// 移除掉反编译的文件夹

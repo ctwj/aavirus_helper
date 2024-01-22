@@ -304,6 +304,55 @@ func (c *Command) DoPackAfterRemoveItems(codePath string, removeItems []string) 
 	return destFile_3, nil
 }
 
+// 删除对应的权限后打包
+func (c *Command) DoPackAfterRemovePermission(codePath string, removePermissons []string) (string, error) {
+
+	// 第一步， 复制代码到 tmp 目录
+	tmp := lib.GenerateRandomString(8)
+	targetCodeDir := path.Join(config.TmpDir, tmp)
+	c.Run([]string{c.CopyCommand(codePath, targetCodeDir)})
+
+	// 第二步， 移除目录
+	lib.RemovePermissions(targetCodeDir, removePermissons)
+
+	// 第三步， 随机包名
+	randomPackName := lib.GenerateRandomPackName()
+	lib.ChangePackName(targetCodeDir, randomPackName)
+
+	// 第四部， 打包, 签名
+	var permissionName []string
+	for _, item := range removePermissons {
+		permissionName = append(permissionName, lib.PermissionLastWord(item))
+	}
+	desFileName := strings.Join(permissionName, "-") // 根据删除的权限生成包名
+	destFile_1 := path.Join(config.TmpDir, desFileName+"_1.apk")
+
+	// 签名相关
+	randomPass := lib.GenerateRandomString(16)
+	jksPath := path.Join(config.TmpDir, randomPass+".jks")
+	randomDName := lib.GenerateRandomDName()
+
+	// 打包签名后的文件
+	// destFile_2 := path.Join(config.TmpDir, desFileName+"_2.apk")
+	destFile_3 := path.Join(config.OutputDir, desFileName+".apk")
+
+	c.Run([]string{
+		c.EmptyFrameworkCommand(),
+		c.PackCommand(targetCodeDir, destFile_1),
+		c.CertGenerateCommand(randomPass, randomDName, jksPath),
+		c.ApksignerCommand(destFile_1, destFile_3, jksPath, randomPass),
+		// c.ZipalignCommand(destFile_2, destFile_3), // 不对齐
+	})
+
+	lib.RemovePaths([]string{
+		targetCodeDir,
+		jksPath,
+		destFile_1,
+	})
+
+	return destFile_3, nil
+}
+
 func (c *Command) OpenOutput() {
 	cmd := c.OpenFolderCommand(config.OutputDir)
 	c.Run([]string{cmd})

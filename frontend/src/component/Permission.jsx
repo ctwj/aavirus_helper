@@ -1,7 +1,9 @@
 import { useStore, observer } from "../hooks/storeHook"
 import { Table } from '@douyinfe/semi-ui';
 
-const Permission = ({permissions}) => {
+
+// props: {permissions: '权限列表', setSelectedItem: '设置选中项'}
+const Permission = ({permissions, setSelectedItem}) => {
 
     let i = 0
     const data = permissions?.map(item => {
@@ -23,18 +25,18 @@ const Permission = ({permissions}) => {
     ];
 
     const rowSelection = {
-        getCheckboxProps: record => ({
-            disabled: record.name === '设计文档', // Column configuration not to be checked
-            name: record.name,
-        }),
-        onSelect: (record, selected) => {
-            console.log(`select row: ${selected}`, record);
-        },
+        // getCheckboxProps: record => ({
+        //     // disabled: record.name === '设计文档', // Column configuration not to be checked
+        //     // name: record.name,
+        // }),
+        // onSelect: (record, selected) => {
+        //     console.log(`select row: ${selected}`, record);
+        // },
         onSelectAll: (selected, selectedRows) => {
-            console.log(`select all rows: ${selected}`, selectedRows);
+            setSelectedItem(selectedRows);
         },
         onChange: (selectedRowKeys, selectedRows) => {
-            console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+            setSelectedItem(selectedRows);
         },
     };
 

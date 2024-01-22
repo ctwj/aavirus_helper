@@ -11,9 +11,9 @@ const container = document.getElementById('root')
 const root = createRoot(container)
 
 root.render(
-    <React.StrictMode>
+    <React.Fragment>
         <StoreContext.Provider value={store}>
             <App/>
         </StoreContext.Provider> 
-    </React.StrictMode>
+    </React.Fragment>
 )

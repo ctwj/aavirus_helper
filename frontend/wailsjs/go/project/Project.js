@@ -10,6 +10,10 @@ export function BatchPack(arg1, arg2, arg3) {
   return window['go']['project']['Project']['BatchPack'](arg1, arg2, arg3);
 }
 
+export function BatchPermissionPack(arg1, arg2, arg3) {
+  return window['go']['project']['Project']['BatchPermissionPack'](arg1, arg2, arg3);
+}
+
 export function CloseApp(arg1) {
   return window['go']['project']['Project']['CloseApp'](arg1);
 }

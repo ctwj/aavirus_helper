@@ -1,4 +1,4 @@
-import { Disassemble, FileList as AndroidManifestInfo, BatchPack, OpenOutput } from '../../wailsjs/go/project/Project'
+import { Disassemble, BatchPermissionPack, BatchPack, OpenOutput } from '../../wailsjs/go/project/Project'
 import { useStore } from "../hooks/storeHook";
 import { useState } from "react";
 
@@ -31,6 +31,22 @@ export const useDisassemble = () => {
         })
     }
 
+    // 删除权限后打包
+    const packApkWithDeletePermission = (mode, selectedItems) => {
+        const items = selectedItems.map(item => item.name)
+        const itemSet = new Set(items)
+        const permissions = Array.from(itemSet)
+
+        return BatchPermissionPack(appStore.disassembleDir, permissions, mode).then(result => {
+            appStore.setPacking(false)
+            Toast.info({
+                content: '打包完成',
+                duration: 3,
+            })
+            OpenOutput()
+        })
+    }
+
     // 反汇编
     const  disassembleApk = () => {
         setDisassembling(true)  // 开启编译中状态
@@ -44,6 +60,7 @@ export const useDisassemble = () => {
 
     return {
         packApkWithDeleteDir,
+        packApkWithDeletePermission,
         disassembleApk,
         disassembling,
         setDisassembling,
