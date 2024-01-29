@@ -1,6 +1,6 @@
 import { observer } from "../hooks/storeHook";
 import React, { useEffect, useState } from "react";
-import { SplitButtonGroup, Dropdown, Spin, Toast, Divider, Button, Typography } from '@douyinfe/semi-ui';
+import { SplitButtonGroup, Dropdown, Spin, Toast, ButtonGroup, Button, Typography } from '@douyinfe/semi-ui';
 import { IconTreeTriangleDown } from '@douyinfe/semi-icons';
 
 import TerminalUI from './Terminal';
@@ -112,6 +112,11 @@ const ToolBar = observer(() => {
         OpenOutput()
     }
 
+    // 显示上传页面
+    const openUpload = () => {
+        appStore.setFunc('upload', 'file')
+    }
+
     useEffect(() => {
         // 加载完成， 如果 已经反汇编过， 在尝试获取一次文件列表
         if (appStore.disassembled) {
@@ -126,15 +131,15 @@ const ToolBar = observer(() => {
 
     return (
         <div style={{height: '36px', padding: "8px 16px", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flexShrink: 1}}>
                 {!disassembled &&  
-                <Button style={{ padding: '6px 24px',alignSelf: 'flex-start'  }} theme="solid" type="primary"
+                <Button style={{ padding: '6px 24px',alignSelf: 'flex-start', flexShrink: 0  }} theme="solid" type="primary"
                     onClick={handleDisassemble}
                     disabled={disassembling}>
                     {!disassembling ? '反编译' : '反编译中'}
                 </Button>
                 }
-                {disassembled && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                {disassembled && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0}}>
                     <PackBtn />
                     {/* <Button style={{ padding: '6px 24px',alignSelf: 'flex-start'  }} theme="solid" type="primary"
                         onClick={handleDir}
@@ -143,17 +148,18 @@ const ToolBar = observer(() => {
                     </Button> */}
                 </div>}
                 
-                {(disassembling || appStore.packing) && <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                    <Spin style={{marginLeft: '8px'}} />
-                    <Text type="tertiary" style={{marginLeft: '8px'}} >{ appStore.progress }</Text>
+                {(disassembling || appStore.packing) && <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 1}}>
+                    <Spin style={{marginLeft: '8px', flexShrink: 0}} />
+                    <Text type="tertiary" style={{marginLeft: '8px', flexShrink: 1}} >{ appStore.progress }</Text>
                 </div>}
             </div>
             
-            <Button style={{ padding: '6px 24px',alignSelf: 'flex-start', marginLeft: 'auto'  }} type="secondary"
-                theme='borderless'
-                onClick={openOutput}>
-                打开文件夹
-            </Button>
+            <ButtonGroup size="small" style={{ padding: '6px 24px',alignSelf: 'flex-start', marginLeft: 'auto', flexShrink: 0  }}>
+                <Button type="secondary"
+                    onClick={openOutput}>文件夹</Button>
+                <Button type="secondary"
+                    onClick={openUpload}>上传</Button>
+            </ButtonGroup>
         </div>
     )
 })

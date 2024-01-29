@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"path"
+	"strings"
 
 	"github.com/ctwj/aavirus_helper/internal/lib"
 	"github.com/ctwj/aavirus_helper/internal/pkg/command"
@@ -100,14 +101,14 @@ func (p *Project) BatchPack(apkdir string, list []string, mode string) interface
 	if mode == "single" {
 		for i, removePath := range result {
 			// 打包
-			progress := fmt.Sprintf("simple: %s %d/%d", path.Base(removePath), i+1, len(result))
+			progress := fmt.Sprintf("%d/%d: %s ", i+1, len(result), path.Base(removePath))
 			runtime.EventsEmit(*ctx, "progress", progress)
 			command.NewCommand().DoPackAfterRemoveItem(apkdir, removePath)
 		}
 	}
 
 	if mode == "group" {
-		progress := "group: 1/1"
+		progress := "1/1: group"
 		runtime.EventsEmit(*ctx, "progress", progress)
 		command.NewCommand().DoPackAfterRemoveItems(apkdir, result)
 	}
@@ -121,23 +122,27 @@ func (p *Project) BatchPack(apkdir string, list []string, mode string) interface
 func (p *Project) BatchPermissionPack(apkdir string, list []string, mode string) interface{} {
 	ctx := ctlCtx.Get()
 
-	fmt.Println(mode)
-	fmt.Println(list)
+	var files []interface{}
+	var totalFile int
 
 	// 简单模式
 	if mode == "single" {
 		for i, removePermission := range list {
 			// 打包
-			progress := fmt.Sprintf("simple: %s %d/%d", lib.PermissionLastWord(removePermission), i+1, len(list))
+			progress := fmt.Sprintf("%d/%d: %s ", i+1, len(list), lib.PermissionLastWord(removePermission))
 			runtime.EventsEmit(*ctx, "progress", progress)
-			command.NewCommand().DoPackAfterRemovePermission(apkdir, []string{removePermission})
+			dest, _ := command.NewCommand().DoPackAfterRemovePermission(apkdir, []string{removePermission})
+			files = append(files, map[string]interface{}{"dest": dest, "remove": removePermission})
+			totalFile = totalFile + 1
 		}
 	}
 
 	if mode == "group" {
-		progress := "group: 1/1"
+		progress := "1/1: group"
 		runtime.EventsEmit(*ctx, "progress", progress)
-		command.NewCommand().DoPackAfterRemovePermission(apkdir, list)
+		dest, _ := command.NewCommand().DoPackAfterRemovePermission(apkdir, list)
+		files = append(files, map[string]interface{}{"dest": dest, "remove": strings.Join(list, ",")})
+		totalFile = totalFile + 1
 	}
 
 	if mode == "cross" {
@@ -147,9 +152,14 @@ func (p *Project) BatchPermissionPack(apkdir string, list []string, mode string)
 			name := lib.GeneratePackNameWithDelPermissions(removePermissions)
 			progress := fmt.Sprintf("simple: %s %d/%d", name, i+1, len(crossList))
 			runtime.EventsEmit(*ctx, "progress", progress)
-			command.NewCommand().DoPackAfterRemovePermission(apkdir, removePermissions)
+			dest, _ := command.NewCommand().DoPackAfterRemovePermission(apkdir, removePermissions)
+			files = append(files, map[string]interface{}{"dest": dest, "remove": strings.Join(list, ",")})
+			totalFile = totalFile + 1
 		}
 	}
+
+	htmlContent := lib.GenerateIndexHTML(mode, files)
+	lib.WriteFile(path.Join(config.OutputDir, "index.html"), htmlContent)
 
 	runtime.EventsEmit(*ctx, "progress", "")
 

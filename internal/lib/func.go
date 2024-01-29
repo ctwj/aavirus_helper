@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"net"
 	"os"
 	"path"
 	"path/filepath"
@@ -460,4 +461,133 @@ func GeneratePackNameWithDelPermissions(removePermissons []string) string {
 	}
 	desFileName := strings.Join(permissionName, "-") // 根据删除的权限生成包名
 	return desFileName
+}
+
+// ==================================================
+// 获取本地ip地址列表
+func GetLocalIPs() ([]string, error) {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return nil, err
+	}
+
+	var ips []string
+
+	for _, iface := range interfaces {
+		addrs, err := iface.Addrs()
+		if err != nil {
+			return nil, err
+		}
+
+		for _, addr := range addrs {
+			ipNet, ok := addr.(*net.IPNet)
+			if ok && !ipNet.IP.IsLoopback() && ipNet.IP.To4() != nil {
+				ips = append(ips, ipNet.IP.String())
+			}
+		}
+	}
+
+	return ips, nil
+}
+
+// ==================================================
+// 生成 output 文件夹中 index.html 文件, files 中存在 "dest", "remove":
+func GenerateIndexHTML(mode string, files []interface{}) string {
+	var list []string
+	for _, item := range files {
+		file, ok := item.(map[string]interface{})
+		if !ok {
+			continue
+		}
+
+		dest, destExists := file["dest"].(string)
+		remove, removeExists := file["remove"].(bool)
+
+		if !destExists || !removeExists {
+			continue
+		}
+
+		name := path.Base(dest)
+		list = append(list, fmt.Sprintf(`<div class=\"item\">
+		<a id=\"%v\" href=\"path/to/file.txt\" download=\"filename.txt\" onclick=\"() => disableLink('%v')\">Download: %v</a>
+		<!-- <button>下载: %v</button> -->
+		<span>remove: %v</span>
+	</div>`, name, name, name, name, remove))
+	}
+
+	html := `<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+    <meta charset=\"UTF-8\">
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <title>DownloadList</title>
+    <style>
+        .list {
+            list-style: none;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .list-item {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        .item {
+            border: solid 1px #ccc;
+            border-radius: 8px;
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    <script>
+        function disableLink(file) {
+            var link = document.getElementById(\"downloadLink\");
+			link.disabled = true; // 禁用链接
+            link.innerHTML = '已下载：' + file;
+			// 或者使用下面的代码隐藏链接
+			// link.style.display = \"none\";
+        }
+    </script>
+</head>
+<body>
+    <h4 style=\"text-align: center;\">Apk 下载列表， 打包模式： %v</h1>
+    <ul class=\"list\">
+        <li class=\"list-item\">`
+
+	html = html + strings.Join(list, "\n")
+	html = html + `
+        </li>
+    </ul>
+</body>
+</html>`
+
+	return html
+}
+
+// ==================================================
+// 写文件
+func WriteFile(path string, content string) error {
+	// 如果文件存在，删除文件
+	if _, err := os.Stat(path); err == nil {
+		err := os.Remove(path)
+		if err != nil {
+			return err
+		}
+	}
+
+	// 创建文件
+	file, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	// 写入文件
+	_, err = file.WriteString(content)
+	if err != nil {
+		return err
+	}
+	return nil
 }

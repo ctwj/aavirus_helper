@@ -33,6 +33,7 @@ export class App {
 
     // 使用功能， file 文件处理，  manifest 配置文件处理  smail 代码处理
     func = 'manifest'
+    oldFunc = 'manifest'
 
     
 
@@ -48,6 +49,7 @@ export class App {
             packing: observable,             // 是否正在打包
             progress: observable,            // 打包进度
             func: observable,
+            oldFunc: observable,             // 上一次的功能
             terminalLineData: observable,
             fileListTreeData: computed,
             setDisassembled: action,        // 设置 disassembled 状态
@@ -127,8 +129,9 @@ export class App {
         this.progress = val
     }
 
-    setFunc (val) {
+    setFunc (val, oldVal) {
         this.func = val
+        this.oldFunc = oldVal
     }
 
     addTerminalLineData (line) {

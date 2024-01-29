@@ -1,6 +1,9 @@
 import { observer } from "../hooks/storeHook";
 import React, { useEffect, useState } from "react";
-import { SplitButtonGroup, Dropdown, Spin, RadioGroup, Radio, Button, Typography, Space, Toast } from '@douyinfe/semi-ui';
+import { 
+    SplitButtonGroup, ButtonGroup, Dropdown, Spin, 
+    RadioGroup, Radio, Button, Typography, Space, Toast
+} from '@douyinfe/semi-ui';
 import { IconTreeTriangleDown } from '@douyinfe/semi-icons';
 import XMLViewer from 'react-xml-viewer'
 
@@ -134,6 +137,16 @@ const ToolBar = observer(({setContent, setParseData, tab, setTab, selectedItem})
         setTab(e.target.value)
     }
 
+    // 显示文件列表页
+    const backToController = () => {
+        appStore.setFunc('file')
+    }
+
+    // 显示上传页面
+    const openUpload = () => {
+        appStore.setFunc('upload', 'manifest')
+    }
+
     useEffect(() => {
         // 加载完成， 如果 已经反汇编过， 在尝试获取一次文件列表
         if (appStore.disassembled) {
@@ -148,15 +161,15 @@ const ToolBar = observer(({setContent, setParseData, tab, setTab, selectedItem})
 
     return (
         <div style={{height: '36px', padding: "8px 16px", display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start'}}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flexShrink: 1}}>
                 {!disassembled &&  
-                <Button style={{ padding: '6px 24px',alignSelf: 'flex-start'  }} theme="solid" type="primary"
+                <Button style={{ padding: '6px 24px',alignSelf: 'flex-start', flexShrink:0  }} theme="solid" type="primary"
                     onClick={handleDisassemble}
                     disabled={disassembling}>
                     {!disassembling ? '反编译' : '反编译中'}
                 </Button>
                 }
-                {disassembled && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between'}}>
+                {disassembled && <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0}}>
                     <RadioGroup
                         onChange={changeTabs}
                         value={tab}
@@ -165,27 +178,33 @@ const ToolBar = observer(({setContent, setParseData, tab, setTab, selectedItem})
                             display: 'flex',
                             width: 200,
                             justifyContent: 'center',
-                            marginRight: '8px'
+                            marginRight: '8px',
+                            flexGrow: 0,
+                            flexShrink: 0,
                         }}
                     >
                         <Radio value={'Permission'}>权限</Radio>
                         <Radio value={'Activity'}>活动</Radio>
-                        <Radio value={'Permissions & Activities'}>综合</Radio>
+                        {/* <Radio value={'Permissions & Activities'}>综合</Radio> */}
                     </RadioGroup>
                     <PackBtn items={selectedItem}/>
                 </div>}
                 
-                {(disassembling || appStore.packing) && <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                {(disassembling || appStore.packing) && <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', flexShrink: 1}}>
                     <Spin style={{marginLeft: '8px'}} />
                     <Text type="tertiary" style={{marginLeft: '8px'}} >{ appStore.progress }</Text>
                 </div>}
             </div>
+            <ButtonGroup size="small" style={{ padding: '6px 24px',alignSelf: 'flex-start', marginLeft: 'auto', flexShrink: 0  }}>
+                <Button type="secondary"
+                    onClick={openOutput}>文件夹</Button>
+                <Button type="secondary"
+                    onClick={openUpload}>上传</Button>
+                <Button type="secondary"
+                    onClick={backToController}>返回</Button>
+            </ButtonGroup>
             
-            <Button style={{ padding: '6px 24px',alignSelf: 'flex-start', marginLeft: 'auto'  }} type="secondary"
-                theme='borderless'
-                onClick={openOutput}>
-                打开文件夹
-            </Button>
+            
         </div>
     )
 })

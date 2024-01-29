@@ -4,10 +4,6 @@ import { useStore } from "../hooks/storeHook";
 
 import { Typography, ButtonGroup, Button, Tree, Toast } from '@douyinfe/semi-ui'
 
-const showManiFest = () => {
-    appStore.setFunc('manifest')
-}
-
 const nodeStyle= {
     display: 'flex',
     justifyContent: 'space-between',
@@ -16,6 +12,11 @@ const nodeStyle= {
 const TreeItemNode = (props) => {
     const node = props.node
     const { name, humanSize } = node;
+
+    const { appStore } = useStore()
+    const showManiFest = () => {
+        appStore.setFunc('manifest')
+    }
 
     const { Text } = Typography
 
