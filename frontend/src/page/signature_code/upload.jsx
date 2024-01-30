@@ -75,16 +75,25 @@ const Upload = () => {
         serverCtl(checked)
     }
 
+    const [serverChanging, setServerChanging] = useState(false)
+
     // 服务器控制
     const serverCtl = (status) => {
+        setServerChanging(true)
         if (status) {
-            console.log(parseInt(port.val, 10))
             StartServer(parseInt(port.val, 10)).then(result => {
                 console.log(result)
+                setWebStatus(result.status)
+            }).finally (() => {
+                console.log('serverChanging', serverChanging)
+                setServerChanging(false)
             })
         } else {
             StopServer().then(result => {
                 console.log(result)
+            }).finally (() => {
+                console.log('serverChanging', serverChanging)
+                setServerChanging(false)
             })
         }
     }   
@@ -94,6 +103,7 @@ const Upload = () => {
         const statusCheck = () => {
             GetStatus(parseInt(port.val, 10)).then(result => {
                 setWebStatus(result.status)
+                console.log(result.status)
             })
         }
         const handler = setInterval(statusCheck, 2000)
@@ -126,7 +136,6 @@ const Upload = () => {
             <Space vertical style={{alignItems: 'stretch'}}>
                 <Card 
                     title='adb 快捷上传' 
-                    style={{  }}
                     headerExtraContent={
                         <Text link>
                             更多
@@ -135,6 +144,7 @@ const Upload = () => {
                 >
                     快捷上传，用于一键将打包apk上传至手机中 /sdcard/Download 目录中
                 </Card>
+                <Spin spinning={false} tip="loading...">
                 <Card 
                     title='Output目录Web服务' 
                     style={{  }}
@@ -156,10 +166,9 @@ const Upload = () => {
                         <div>
                            { webStatus ? <IpsRender /> : <Text type="tertiary">服务未启动</Text>}
                         </div>
-                       
                     </Space>
-                    
                 </Card>
+                </Spin>
             </Space>
         </div>
     )

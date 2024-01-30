@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DownloadList</title>
+    <style>
+        .list {
+            list-style: none;
+            padding: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+        .list-item {
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+        }
+        .item {
+            border: solid 1px #ccc;
+            border-radius: 8px;
+            padding: 8px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+    </style>
+    <script>
+        function disableLink(file) {
+            var link = document.getElementById("downloadLink");
+			link.disabled = true; // 禁用链接
+            link.innerHTML = '已下载：' + file;
+			// 或者使用下面的代码隐藏链接
+			// link.style.display = "none";
+        }
+    </script>
+</head>
+<body>
+    <h4 style="text-align: center;">Apk 下载列表， 打包模式： %v</h1>
+    <ul class="list">
+        <li class="list-item">
+            <div class="item">
+                <a id="%v" href="path/to/file.txt" download="filename.txt" onclick="() => disableLink('%v')">Download: %v</a>
+                <!-- <button>下载: %v</button> -->
+                <span>remove: %v</span>
+            </div>
+        </li>
+    </ul>
+</body>
+</html>

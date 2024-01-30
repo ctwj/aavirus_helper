@@ -12,10 +12,11 @@ import (
 )
 
 type Web struct {
-	server *http.Server
-	wg     sync.WaitGroup
-	port   int
-	init   bool
+	server     *http.Server
+	wg         sync.WaitGroup
+	port       int
+	init       bool
+	resultChan chan interface{}
 }
 
 func NewWeb() *Web {
@@ -30,34 +31,33 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 
 // 设置静态目录为网站
 func (t *Web) StartServer(port int) interface{} {
-
+	t.resultChan = make(chan interface{}, 1)
 	t.port = port
 	addr := fmt.Sprintf(":%d", port)
 	if !t.init { // 不能重复注册路由
 		fs := http.FileServer(http.Dir(config.OutputDir))
+		log.Println(config.OutputDir)
 		http.Handle("/", fs)
 		http.Handle("/ping", http.HandlerFunc(handleRequest))
-		log.Printf("Starting server on http://localhost%s", addr)
 	}
 	t.init = true
-
+	log.Printf("Starting server on http://localhost%s", addr)
 	t.server = &http.Server{Addr: addr}
 
-	resultChan := make(chan interface{}, 1)
 	t.wg.Add(1)
 	go func() {
 		defer t.wg.Done()
 		if err := t.server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Printf("Server error: %v", err)
-			resultChan <- map[string]interface{}{"status": false, "err": err.Error()}
-			// return map[string]interface{}{"status": false, "err": err.Error()}
+			t.resultChan <- map[string]interface{}{"status": false, "err": err.Error()}
+			return
 		}
-		resultChan <- map[string]interface{}{"status": true}
-		// return map[string]interface{}{"status": true}
+		log.Printf("Server start: ok")
+		t.resultChan <- map[string]interface{}{"status": true}
 	}()
 
 	// return map[string]interface{}{"status": true}
-	return <-resultChan
+	return <-t.resultChan
 }
 
 // 停止服务器

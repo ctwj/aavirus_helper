@@ -32,8 +32,8 @@ export class App {
     selFiles = []
 
     // 使用功能， file 文件处理，  manifest 配置文件处理  smail 代码处理
-    func = 'manifest'
-    oldFunc = 'manifest'
+    func = 'file'
+    oldFunc = 'file'
 
     
 

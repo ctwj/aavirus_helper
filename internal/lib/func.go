@@ -495,31 +495,33 @@ func GetLocalIPs() ([]string, error) {
 func GenerateIndexHTML(mode string, files []interface{}) string {
 	var list []string
 	for _, item := range files {
+		fmt.Println(item)
 		file, ok := item.(map[string]interface{})
 		if !ok {
+			fmt.Println("not ok")
 			continue
 		}
 
 		dest, destExists := file["dest"].(string)
-		remove, removeExists := file["remove"].(bool)
+		remove, removeExists := file["remove"].(string)
 
 		if !destExists || !removeExists {
+			fmt.Println("no param")
 			continue
 		}
 
 		name := path.Base(dest)
-		list = append(list, fmt.Sprintf(`<div class=\"item\">
-		<a id=\"%v\" href=\"path/to/file.txt\" download=\"filename.txt\" onclick=\"() => disableLink('%v')\">Download: %v</a>
-		<!-- <button>下载: %v</button> -->
+		list = append(list, fmt.Sprintf(`<div class="item">
+		<a id="%v" href="%v" download="%v" onclick="() => disableLink('%v')">Download: %v</a>
 		<span>remove: %v</span>
-	</div>`, name, name, name, name, remove))
+	</div>`, name, name, name, name, name, remove))
 	}
 
 	html := `<!DOCTYPE html>
-<html lang=\"en\">
+<html lang="en">
 <head>
-    <meta charset=\"UTF-8\">
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DownloadList</title>
     <style>
         .list {
@@ -544,18 +546,18 @@ func GenerateIndexHTML(mode string, files []interface{}) string {
     </style>
     <script>
         function disableLink(file) {
-            var link = document.getElementById(\"downloadLink\");
+            var link = document.getElementById("downloadLink");
 			link.disabled = true; // 禁用链接
             link.innerHTML = '已下载：' + file;
 			// 或者使用下面的代码隐藏链接
-			// link.style.display = \"none\";
+			// link.style.display = "none";
         }
     </script>
 </head>
 <body>
-    <h4 style=\"text-align: center;\">Apk 下载列表， 打包模式： %v</h1>
-    <ul class=\"list\">
-        <li class=\"list-item\">`
+    <h4 style="text-align: center;">Apk 下载列表， 打包模式： %v</h1>
+    <ul class="list">
+        <li class="list-item">`
 
 	html = html + strings.Join(list, "\n")
 	html = html + `

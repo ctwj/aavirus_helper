@@ -32,7 +32,7 @@ const PackBtn = observer(() => {
                 content: '打包完成',
                 duration: 3,
             })
-            OpenOutput()
+            // OpenOutput()
         })
     }
 
